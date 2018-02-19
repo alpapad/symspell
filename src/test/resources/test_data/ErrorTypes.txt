@@ -1,0 +1,20 @@
+﻿conc->concatenated words
+del->deletion error
+delphon->phonetically based deletion (e.g. deletion of silent character)
+delpunc->missing punctuation (e.g ' or -)
+delrep->deletion of repeated character
+gram->grammatical error
+ins->insertion error
+inshor->insertion error with horizontal proximity
+inspunc->insertion of punctuation
+insrep->insertion of repeated character
+insver->insertion error with vertical proximity
+phon->phonetic error (homophones)
+spac->spacing error ("andt he")
+split->one word split into two (or more)
+sub->substitution error
+subacc->substitution involving accented characters
+subhor->substitution error with horizontal proximity
+subphon->substitution based on phonetics
+subver->substitution error with vertical proximity
+trans->transpositional error

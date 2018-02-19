@@ -1,0 +1,11 @@
+﻿Each sentence has the attribute "sv" which marks whether the sentence has been manually verified. A manually verified sentence has been checked to make sure that all misspelled words are marked correctly as misspelled with the proper correction given.
+Each misspelling (tag "mw") has 3 attributes:
+Correct: The correct spelling.
+Type: The type of misspelling (see ErrorTypes.txt)
+Mv: Manually verified
+
+After the sentences with misspellings there is first a list of each misspelling and how many examples of each is included.
+
+Next is a list of error types, and how many of each are included.
+
+Finally the total count of misspellings and sentences are given.
