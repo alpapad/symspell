@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.faroo.symspell.SymSpell;
 import com.faroo.symspell.Verbosity;
@@ -12,20 +14,20 @@ import com.google.common.base.Stopwatch;
 
 public class Benchmark {
 
-	static String Path = "/home/alpapad/git/symspell/src/test/resources/test_data";
-	static String Query1k = Path + "/noisy_query_en_1000.txt";
-
+	static String Path = "src/test/resources/test_data";
+	//static String Query1k = Path + "/noisy_query_en_1000.txt";
+	//static String Query1k = Path + "/batch0.tab";
+	static String Query1k = Path + "/errors.txt";
 	static String[] DictionaryPath = { Path + "/frequency_dictionary_en_30_000.txt",
 			 Path + "/frequency_dictionary_en_82_765.txt",
 			Path + "/frequency_dictionary_en_500_000.txt" };
 
 	static String[] DictionaryName = { "30k", "82k", "500k" };
 
-	static int[] DictionarySize = { 29159, 500000 };
+	static int[] DictionarySize = { 29159, 82765, 500000 };
 
 	static void gc() {
-		// System.err.println("\n Forcing GC");
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 2; i++) {
 			System.gc();
 			try {
 				Thread.sleep(1000);
@@ -36,8 +38,8 @@ public class Benchmark {
 	}
 	
 	// load 1000 terms with random spelling errors
-	static String[] BuildQuery1K() {
-		String[] testList = new String[1000];
+	static List<String> BuildQuery1K() {
+		List<String> testList = new ArrayList<>();
 		int i = 0;
 		try (BufferedReader br = new BufferedReader(new FileReader(Query1k))) {
 
@@ -47,7 +49,9 @@ public class Benchmark {
 			while ((line = br.readLine()) != null) {
 				String[] lineParts = line.split("\\s+");
 				if (lineParts.length >= 2) {
-					testList[i++] = lineParts[0];
+					if(lineParts[0] != null && lineParts[0].trim().length() >0) {
+						testList.add(lineParts[0].toLowerCase().trim().replaceAll("\"", ""));
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -87,7 +91,7 @@ public class Benchmark {
 	}
 
 	static void BenchmarkPrecalculationLookup() throws FileNotFoundException, IOException {
-		String[] query1k = BuildQuery1K();
+		List<String> query1k = BuildQuery1K();
 		int resultNumber = 0;
 		double repetitions = 1000;
 		int totalLoopCount = 0;
@@ -201,7 +205,7 @@ public class Benchmark {
 					totalLookupTime += stopWatch.stop().elapsed().toNanos();
 					totalMatches += resultNumber;
 					System.out.println("lookup v7 " + resultNumber + " results "
-							+ (stopWatch.elapsed().toNanos() / (double) query1k.length) + "ns/op verbosity="
+							+ (stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity="
 							+ verbosity + " query=mix");
 					// static mix
 					stopWatch.reset().start();
@@ -213,10 +217,10 @@ public class Benchmark {
 					totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
 					totalOrigMatches += resultNumber;
 					System.out.println("lookup v3 " + resultNumber + " results "
-							+ (stopWatch.elapsed().toNanos() / (double) query1k.length) + "ns/op verbosity="
+							+ (stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity="
 							+ verbosity + " query=mix");
 					System.out.println();
-					totalRepetitions += query1k.length;
+					totalRepetitions += query1k.size();
 				}
 				System.out.println();
 

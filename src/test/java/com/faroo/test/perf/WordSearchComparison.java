@@ -61,7 +61,7 @@ public class WordSearchComparison {
 
 	static void gc() {
 		// System.err.println("\n Forcing GC");
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 2; i++) {
 			System.gc();
 			try {
 				Thread.sleep(1000);
