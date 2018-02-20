@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import gnu.trove.map.TLongObjectMap;
+
 /**
  * An intentionally opacque class used to temporarily stage dictionary data
  * during the adding of many words. By staging the data during the building of
@@ -111,7 +113,7 @@ public class SuggestionStage {
 	 * 
 	 * @param permanentDeletes
 	 */
-	void commitTo(Map<Long, String[]> permanentDeletes) {
+	void commitTo(TLongObjectMap<String[]> permanentDeletes) {
 		for (Map.Entry<Long, Entry> keyPair : deletes.entrySet()) {
 			int i;
 			String[] suggestions = permanentDeletes.get(keyPair.getKey());
@@ -120,13 +122,13 @@ public class SuggestionStage {
 				String[] newSuggestions = Arrays.copyOf(suggestions, suggestions.length + keyPair.getValue().count);
 				// String[] newSuggestions = new String[suggestions.length + keyPair.getValue().count];
 				// Array.Copy(suggestions, newSuggestions, suggestions.length);
-				permanentDeletes.put(keyPair.getKey(), newSuggestions);
+				permanentDeletes.put(keyPair.getKey().longValue(), newSuggestions);
 				suggestions = newSuggestions;
 				// permanentDeletes[keyPair.Key] = suggestions = newSuggestions;
 			} else {
 				i = 0;
 				suggestions = new String[keyPair.getValue().count];
-				permanentDeletes.put(keyPair.getKey(), suggestions);
+				permanentDeletes.put(keyPair.getKey().longValue(), suggestions);
 			}
 			int next = keyPair.getValue().first;
 			while (next >= 0) {

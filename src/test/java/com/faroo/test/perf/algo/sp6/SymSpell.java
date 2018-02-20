@@ -34,6 +34,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gnu.trove.map.TLongObjectMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 public class SymSpell {
 	/**
 	 * Controls the closeness/quantity of returned spelling suggestions.
@@ -78,7 +81,7 @@ public class SymSpell {
 	 * verified via an edit distance function. A list of suggestions might have a
 	 * single suggestion, or multiple suggestions.
 	 */
-	private HashMap<Long, String[]> deletes;
+	private TLongObjectMap<String[]> deletes;
 	/*
 	 * Dictionary of unique correct spelling words, and the frequency count for each
 	 * word.
@@ -257,7 +260,7 @@ public class SymSpell {
 			}
 		} else {
 			if (deletes == null) {
-				this.deletes = new HashMap<Long, String[]>(initialCapacity); // initialisierung
+				this.deletes = new TLongObjectHashMap<>(initialCapacity); // initialisierung
 			}
 			for (String delete : edits) {
 				long deleteHash = getStringHash(delete);
@@ -317,7 +320,7 @@ public class SymSpell {
 		}
 
 		if (this.deletes == null) {
-			this.deletes = new HashMap<Long, String[]>(staging.getDeleteCount());
+			this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
 		}
 		commitStaged(staging);
 		return true;
@@ -351,7 +354,7 @@ public class SymSpell {
 		}
 
 		if (this.deletes == null) {
-			this.deletes = new HashMap<Long, String[]>(staging.getDeleteCount());
+			this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
 		}
 		commitStaged(staging);
 		return true;
@@ -359,7 +362,7 @@ public class SymSpell {
 
 	public boolean commit(SuggestionStage staging) {
 		if (this.deletes == null) {
-			this.deletes = new HashMap<Long, String[]>(staging.getDeleteCount());
+			this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
 		}
 		commitStaged(staging);
 		return true;

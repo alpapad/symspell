@@ -7,8 +7,8 @@
  */
 package com.faroo.symspell;
 
-import static com.faroo.symspell.SipHash.hash;
-
+//import static com.faroo.symspell.SipHash.hash;
+import static com.faroo.symspell.hash.XxHash64.hash;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -90,12 +90,11 @@ public class Dictionary {
 	public boolean createDictionaryEntry(String key) {
 		boolean result = false;
 		Node value = null;
-		Object valueo;
-		valueo = tempDictionary.get(hash(key));
+		Object valueo = tempDictionary.get(hash(key));
 		if (valueo != null) {
 			// int or dictionaryItem? delete existed before word!
 			if (valueo instanceof Integer) {
-				int tmp = (int) valueo;
+				int tmp = Integer.class.cast(valueo);
 				value = new Node();
 				value.suggestions.add(tmp);
 				tempDictionary.put(hash(key), value);
@@ -150,15 +149,15 @@ public class Dictionary {
 					// int or dictionaryItem? single delete existed before!
 					if (value2 instanceof Integer) {
 						// transformes int to dictionaryItem
-						int tmp = (int) value2;
+						int tmp = Integer.class.cast(value2);
 						Node di = new Node();
 						di.suggestions.add(tmp);
 						tempDictionary.put(hash(delete), di);
 						if (!di.suggestions.contains(keyint)) {
 							addLowestDistance(di, key, keyint, delete);
 						}
-					} else if (!((Node) value2).suggestions.contains(keyint)) {
-						addLowestDistance((Node) value2, key, keyint, delete);
+					} else if (!Node.class.cast(value2).suggestions.contains(keyint)) {
+						addLowestDistance(Node.class.cast(value2), key, keyint, delete);
 					}
 				} else {
 					tempDictionary.put(hash(delete), keyint);

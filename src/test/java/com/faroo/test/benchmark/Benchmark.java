@@ -15,8 +15,8 @@ import com.google.common.base.Stopwatch;
 public class Benchmark {
 
 	static String Path = "src/test/resources/test_data";
-	//static String Query1k = Path + "/noisy_query_en_1000.txt";
-	//static String Query1k = Path + "/batch0.tab";
+	//static String errors = path + "/noisy_query_en_1000.txt";
+	//static String errors = path + "/batch0.tab";
 	static String Query1k = Path + "/errors.txt";
 	static String[] DictionaryPath = { Path + "/frequency_dictionary_en_30_000.txt",
 			 Path + "/frequency_dictionary_en_82_765.txt",
@@ -84,8 +84,6 @@ public class Benchmark {
 	}
 
 	static long GetTotalMemory(boolean a) {
-		gc();
-		gc();
 		gc();
 		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
