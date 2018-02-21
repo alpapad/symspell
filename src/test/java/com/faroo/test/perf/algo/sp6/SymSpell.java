@@ -98,29 +98,33 @@ public class SymSpell {
 		return this.maxDictionaryEditDistance;
 	}
 
-	/* Length of prefix, from which deletes are generated. */
+	/** Length of prefix, from which deletes are generated. */
 	public int getPrefixLength() {
 		return this.prefixLength;
 	}
 
-	/* Length of longest word in the dictionary. */
+	/** Length of longest word in the dictionary. */
 	public int getMaxLength() {
 		return this.maxLength;
 	}
 
-	/// <summary>Count threshold for a word to be considered a valid word for
-	/// spelling correction.</summary>
+	/**
+	 * Count threshold for a word to be considered a valid word for spelling
+	 * correction.
+	 */
 	public long getCountThreshold() {
 		return this.countThreshold;
 	}
 
-	/// <summary>Number of unique words in the dictionary.</summary>
+	/** Number of unique words in the dictionary. */
 	public int getWordCount() {
 		return this.words.size();
 	}
 
-	/// <summary>Number of word prefixes and intermediate word deletes encoded in
-	/// the dictionary.</summary>
+	/**
+	 * Number of word prefixes and intermediate word deletes encoded in the
+	 * dictionary.
+	 */
 	public int getEntryCount() {
 		return this.deletes.size();
 	}
@@ -525,8 +529,10 @@ public class SymSpell {
 					if (suggestion.equals(input)) {
 						continue;
 					}
-					if ((Math.abs(suggestionLen - inputLen) > maxEditDistance2) // input and sugg lengths diff >  allowed/current best distance
-							|| (suggestionLen < candidateLen) // sugg must be for a different delete string, in same bin only because of hash collision
+					if ((Math.abs(suggestionLen - inputLen) > maxEditDistance2) // input and sugg lengths diff >
+																				// allowed/current best distance
+							|| (suggestionLen < candidateLen) // sugg must be for a different delete string, in same bin
+																// only because of hash collision
 							|| ((suggestionLen == candidateLen) && (!suggestion.equals(candidate)))) {
 						continue;
 					}
