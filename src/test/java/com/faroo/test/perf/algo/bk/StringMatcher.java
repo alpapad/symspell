@@ -46,7 +46,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  */
 public class StringMatcher<T> {
 	private Node<T> root;
-	private IEditDistance distanceCalculator = new EditDistanceCalculator();
+	private IEditDistance distanceCalculator = new JaroWinklerDistance();
 
 	public StringMatcher() {
 	}

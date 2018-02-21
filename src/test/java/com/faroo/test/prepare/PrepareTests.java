@@ -45,7 +45,7 @@ public class PrepareTests {
 		corpus.addAll(correct);
 		dumpCorpus(path + "/../corpus_500k.txt", corpus);
 
-		for (int distance = 0; distance <= 3; distance++) {
+		for (int distance = 0; distance <= 70; distance+=10) {
 			matcher = new StringMatcher<>();
 			for (String word : corpus) {
 				matcher.add(word.trim().toLowerCase(), (Void)null);
@@ -57,8 +57,8 @@ public class PrepareTests {
 
 				results.put(word, found);
 			}
-			System.err.println("Saving  results (distance =" + distance + ")...");
-			dumpTestFile(path + "/../test_dist" + distance + "_500k.txt", results);
+			System.err.println("Saving  results (distance =" + distance/10 + ")...");
+			dumpTestFile(path + "/../test_dist" + distance/10 + "_500k.txt", results);
 		}
 	}
 

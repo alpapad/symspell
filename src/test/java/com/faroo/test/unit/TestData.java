@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class TestData {
 
-	public List<String> loadQuery() throws FileNotFoundException, IOException {
+	public List<String> loadCorpus() throws FileNotFoundException, IOException {
 		List<String> testList = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(TestData.class.getResourceAsStream("/corpus_500k.txt"),"UTF8"))) {
 			String line;

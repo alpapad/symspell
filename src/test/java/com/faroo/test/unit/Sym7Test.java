@@ -22,8 +22,8 @@ public class Sym7Test {
 		TestData data = new TestData();
 		for (int i = 0; i <= 3; i++) {
 			System.err.println("Indexing for diatance " + i);
-			SymSpell sp = new SymSpell(i,Verbosity.All,DistanceAlgo.JaroWinkler);
-			for (String w : data.loadQuery()) {
+			SymSpell sp = new SymSpell(i,Verbosity.All,DistanceAlgo.OptimalStringAlignment);
+			for (String w : data.loadCorpus()) {
 				sp.createDictionaryEntry(w.toLowerCase());
 			}
 			sp.commit();
@@ -40,7 +40,7 @@ public class Sym7Test {
 				SetView<String> view1 = Sets.difference(expected, results);
 				SetView<String> view2 = Sets.difference(results, expected);
 
-				if (view1.size() != view2.size()) {
+				if (view1.size() > 0 || view2.size() > 0) {
 					System.err.println("Distance " + i + " Word: '" + word + "' diff: expected#:" + expected.size()
 							+ ", results#:" + results.size() + "\n\t\t" + view1 + "\n\t\t" + view2);
 				}
