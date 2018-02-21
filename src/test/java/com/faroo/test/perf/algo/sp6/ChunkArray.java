@@ -19,16 +19,25 @@ package com.faroo.test.perf.algo.sp6;
  */
 import java.util.Arrays;
 
-// A growable list of elements that's optimized to support adds, but not deletes,
-// of large numbers of elements, storing data in a way that's friendly to the garbage
-// collector (not backed by a monolithic array object), and can grow without needing
-// to copy the entire backing array contents from the old backing array to the new.
+/**
+ * A growable list of elements that's optimized to support adds, but not
+ * deletes, of large numbers of elements, storing data in a way that's friendly
+ * to the garbage collector (not backed by a monolithic array object), and can
+ * grow without needing to copy the entire backing array contents from the old
+ * backing array to the new.
+ * 
+ *
+ * @param <T>
+ */
 class ChunkArray<T> {
-	private final int chunkSize = 4096; // this must be a power of 2, otherwise can't optimize Row and Col functions
-	private final int divShift = 12; // number of bits to shift right to do division by ChunkSize (the bit position
-										// of ChunkSize)
-	private Object[][] values;// { get; private set; }
-	public int count;// { get; private set; }
+	// this must be a power of 2, otherwise can't optimize Row and Col functions
+	private final int chunkSize = 4096;
+
+	// number of bits to shift right to do division by ChunkSize (the bit position
+	// of ChunkSize)
+	private final int divShift = 12;
+	private Object[][] values;
+	public int count;
 
 	public ChunkArray(int initialCapacity) {
 		int chunks = ((initialCapacity + chunkSize) - 1) / chunkSize;

@@ -19,7 +19,7 @@ public class JaroWinklerDistance implements IDistance{
      */
     public static final int INDEX_NOT_FOUND = -1;
 
-    public Double apply(final String left, final String right) {
+    public double apply(final String left, final String right) {
     	return this.apply(left.toCharArray(), right.toCharArray());
     }
     /**
@@ -48,7 +48,7 @@ public class JaroWinklerDistance implements IDistance{
      * @return result distance
      * @throws IllegalArgumentException if either String input {@code null}
      */
-    public Double apply(final char[] left, final char[] right) {
+    public double apply(final char[] left, final char[] right) {
         final double defaultScalingFactor = 0.1;
 
         if (left == null || right == null) {

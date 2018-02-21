@@ -4,7 +4,9 @@ public enum DistanceAlgo {
 	DamerauLevenshtein, //
 	Levenshtein, //
 	LimitedLevenshtein, //
-	RestrictedDamerauLevenshtein;
+	OptimalStringAlignment,
+	Sift4,
+	JaroWinkler;
 
 	public IDistance instance() {
 		switch (this) {
@@ -14,8 +16,12 @@ public enum DistanceAlgo {
 			return new LevenshteinDistance();
 		case LimitedLevenshtein:
 			return new LimitedLevenshteinDistance();
-		case RestrictedDamerauLevenshtein:
-			return new RestrictedDamerauLevenshteinDistance();
+		case OptimalStringAlignment:
+			return new OptimalStringAlignmentDistance();
+		case Sift4:
+			return new Sift4();
+		case JaroWinkler:
+			return new JaroWinklerDistance();
 		default:
 			throw new UnsupportedOperationException();
 		}

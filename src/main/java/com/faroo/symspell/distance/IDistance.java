@@ -81,11 +81,11 @@ public interface IDistance {
 		}
 	}
 
-	default double getPercentageDifference(CharSequence keyword, CharSequence wordToMatch, double editDistance) {
-		int longestWordLength = Math.max(keyword.length(), wordToMatch.length());
+	default double getPercentageDifference(CharSequence left, CharSequence right, double editDistance) {
+		int longestWordLength = Math.max(left.length(), right.length());
 		return 1.0d - ((editDistance / longestWordLength) * 1.0d);
 	}
-
+	
 	default double getPercentageDifference(CharSequence keyword, double editDistance) {
 		return 1.0d - (editDistance / keyword.length());
 	}

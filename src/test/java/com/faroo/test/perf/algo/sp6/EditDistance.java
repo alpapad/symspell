@@ -18,7 +18,7 @@ import java.util.Arrays;
  * inspired by Sten Hjelmqvist'string1 "Fast, memory efficient" algorithm,
  * described at
  * http://www.codeproject.com/Articles/13525/Fast-memory-efficient-Levenshtein-algorithm.
- * This version differs by adding additiona optimizations, and extending it to
+ * This version differs by adding additional optimizations, and extending it to
  * the Damerau- Levenshtein algorithm. Note that this is the simpler and faster
  * optimal string alignment (aka restricted edit) distance that difers slightly
  * from the classic Damerau-Levenshtein algorithm by imposing the restriction

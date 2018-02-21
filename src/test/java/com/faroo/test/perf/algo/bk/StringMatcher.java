@@ -46,17 +46,12 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  */
 public class StringMatcher<T> {
 	private Node<T> root;
-	private EditDistanceCalculator distanceCalculator = new EditDistanceCalculator();
-	private MatchingOption matchingOption = MatchingOption.NONE;
+	private IEditDistance distanceCalculator = new EditDistanceCalculator();
 
 	public StringMatcher() {
 	}
 
-	public StringMatcher(MatchingOption matchingOption) {
-		this.matchingOption = matchingOption;
-	}
-
-	public void add(CharSequence keyword, T associatedData) {
+	public void add(String keyword, T associatedData) {
 		if (keyword == null) {
 			throw new IllegalArgumentException("Strings must not be null");
 		}
@@ -65,10 +60,8 @@ public class StringMatcher<T> {
 			throw new IllegalArgumentException("Strings must not be empty");
 		}
 
-		CharSequence normalizedKeyword = getNormalizedKeyword(keyword);
-
 		if (root == null) {
-			root = new Node<T>(keyword, normalizedKeyword, associatedData);
+			root = new Node<T>(keyword, associatedData);
 		} else {
 			// Traverse through the tree, adding the string as a leaf related by edit
 			// distance
@@ -84,28 +77,15 @@ public class StringMatcher<T> {
 				}
 			}
 
-			current.addChild(editDistance, keyword, normalizedKeyword, associatedData);
+			current.addChild(editDistance, keyword, associatedData);
 		}
-	}
-
-	private CharSequence getNormalizedKeyword(CharSequence str) {
-		if (matchingOption == MatchingOption.REMOVE_SPACING_AND_LINEBREAKS) {
-			return removeSpacesAndLinebreaks(str);
-		} else {
-			return str;
-		}
-	}
-
-	private CharSequence removeSpacesAndLinebreaks(CharSequence str) {
-		return str.toString().replaceAll("[\\t\\n\\r\\s]", "");
 	}
 
 	// Search using % matching.
 	// More user-friendly and robust when searching strings of variable length,
 	// but may lead to strings slightly less than the matchPercentage being returned
 	// due to rounding.
-	public SearchResultList<T> search(CharSequence keyword, float matchPercentage) {
-		keyword = getNormalizedKeyword(keyword);
+	public SearchResultList<T> search(String keyword, float matchPercentage) {
 		int distanceThreshold = convertPercentageToEditDistance(keyword, matchPercentage);
 
 		return searchTree(keyword, distanceThreshold);
@@ -113,19 +93,18 @@ public class StringMatcher<T> {
 
 	// Edit distance threshold from % = Keyword length - (keyword length *
 	// matchPercentage)/100
-	private int convertPercentageToEditDistance(CharSequence keyword, float matchPercentage) {
+	private int convertPercentageToEditDistance(String keyword, float matchPercentage) {
 		return keyword.length() - (Math.round((keyword.length() * matchPercentage) / 100.0f));
 	}
 
 	// Search using edit distance (chars different).
 	// Less user-friendly and less robust when strings are of variable length,
 	// but ensures only strings with a precise number of edits will be returned.
-	public SearchResultList<T> search(CharSequence keyword, int distanceThreshold) {
-		keyword = getNormalizedKeyword(keyword);
+	public SearchResultList<T> search(String keyword, int distanceThreshold) {
 		return searchTree(keyword, distanceThreshold);
 	}
 
-	private SearchResultList<T> searchTree(CharSequence keyword, int distanceThreshold) {
+	private SearchResultList<T> searchTree(String keyword, int distanceThreshold) {
 		SearchResultList<T> results = new SearchResultList<T>();
 
 		searchTree(root, keyword, distanceThreshold, results);
@@ -140,14 +119,15 @@ public class StringMatcher<T> {
 	// dirty, but since this
 	// method is recursive, it saves a new collection being created/copied with
 	// every call.
-	private void searchTree(Node<T> node, CharSequence keyword, int distanceThreshold, SearchResultList<T> results) {
+	private void searchTree(Node<T> node, String keyword, int distanceThreshold, SearchResultList<T> results) {
 		int currentDistance = distanceCalculator.calculateEditDistance(node.normalizedKeyword, keyword);
 
 		if (currentDistance <= distanceThreshold) {
 			// Match found
 			float percentageDifference = getPercentageDifference(node.normalizedKeyword, keyword, currentDistance);
-			SearchResult<T> result = new SearchResult<T>(node.originalKeyword, node.associatedData,
-					percentageDifference);
+			// SearchResult<T> result = new SearchResult<T>(node.originalKeyword, node.associatedData, percentageDifference);
+			SearchResult<T> result = new SearchResult<T>(node.normalizedKeyword, node.associatedData, percentageDifference);
+
 			results.add(result);
 		}
 
@@ -179,13 +159,13 @@ public class StringMatcher<T> {
 	 *            The type of data associated with each string keyword.
 	 */
 	private static class Node<T> {
-		private CharSequence originalKeyword;
-		private CharSequence normalizedKeyword; // Used for matching
+		//private CharSequence originalKeyword;
+		private String normalizedKeyword; // Used for matching
 		private T associatedData;
 		private TIntObjectMap<Node<T>> children; // Children are keyed on edit distance
 
-		public Node(CharSequence keyword, CharSequence normalizedKeyword, T associatedData) {
-			this.originalKeyword = keyword;
+		public Node(String normalizedKeyword, T associatedData) {
+			//this.originalKeyword = keyword;
 			this.normalizedKeyword = normalizedKeyword;
 			this.associatedData = associatedData;
 		}
@@ -214,18 +194,18 @@ public class StringMatcher<T> {
 			return children != null && children.containsKey(key);
 		}
 
-		public void addChild(int key, CharSequence keyword, CharSequence normalizedKeyword, T associatedData) {
+		public void addChild(int key, String normalizedKeyword, T associatedData) {
 			if (children == null) {
 				children = new TIntObjectHashMap<Node<T>>();
 			}
 
-			Node<T> child = new Node<T>(keyword, normalizedKeyword, associatedData);
+			Node<T> child = new Node<T>(normalizedKeyword, associatedData);
 			children.put(key, child);
 		}
 
 		@Override
 		public String toString() {
-			return String.format("%s/%s/%s", originalKeyword, normalizedKeyword, associatedData);
+			return String.format("%s/%s",  normalizedKeyword, associatedData);
 		}
 
 		public void printHierarchy(int level) {
@@ -233,7 +213,7 @@ public class StringMatcher<T> {
 				System.out.print("\t");
 			}
 
-			System.out.println(String.format("-- %s", originalKeyword));
+			System.out.println(String.format("-- %s", normalizedKeyword));
 
 			if (children != null) {
 				for (Node<T> child : children.valueCollection()) {

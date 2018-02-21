@@ -31,9 +31,13 @@ package com.faroo.test.perf.algo.bk;
  * @author Graham McRobbie
  * 
  */
-public class EditDistanceCalculator {
+public class EditDistanceCalculator implements IEditDistance {
 
-	public int calculateEditDistance(CharSequence str1, CharSequence str2) {
+	/* (non-Javadoc)
+	 * @see com.faroo.test.perf.algo.bk.IEditDistance#calculateEditDistance(java.lang.CharSequence, java.lang.CharSequence)
+	 */
+	@Override
+	public int calculateEditDistance(String str1, String str2) {
 
 		if (str1 == null || str2 == null) {
 			throw new IllegalArgumentException("Argument cannot be null.");

@@ -8,48 +8,48 @@ public class DamerauLevenshteinDistance implements IDistance {
 	@Override
 	public int distance(char[] a, char[] b, int maxDistance) {
 
-		final int inf = a.length + b.length + 1;
-		int[][] H = new int[a.length + 2][b.length + 2];
-		for (int i = 0; i <= a.length; i++) {
-			H[i + 1][1] = i;
-			H[i + 1][0] = inf;
+		final int m = a.length;
+		final int n = b.length;
+		
+		final int inf = m + n + 1;
+		int[][] d = new int[m + 2][n + 2];
+		for (int i = 0; i <= m; i++) {
+			d[i + 1][1] = i;
+			d[i + 1][0] = inf;
 		}
-		for (int j = 0; j <= b.length; j++) {
-			H[1][j + 1] = j;
-			H[0][j + 1] = inf;
+		for (int j = 0; j <= n; j++) {
+			d[1][j + 1] = j;
+			d[0][j + 1] = inf;
 		}
-		TCharIntMap DA = new TCharIntHashMap();
-		for (int d = 0; d < a.length; d++) {
-			if (!DA.containsKey(a[d])) {
-				DA.put(a[d], 0);
-			}
-		}
-
-		for (int d = 0; d < b.length; d++) {
-			if (!DA.containsKey(b[d])) {
-				DA.put(b[d], 0);
-			}
+		
+		TCharIntMap charDictionary = new TCharIntHashMap();
+		for (int i = 0; i < m; i++) {
+			charDictionary.put(a[i], 0);
 		}
 
-		for (int i = 1; i <= a.length; i++) {
-			int DB = 0;
-			for (int j = 1; j <= b.length; j++) {
-				final int i1 = DA.get(b[j - 1]);
-				final int j1 = DB;
-				int d = 1;
+		for (int j = 0; j < n; j++) {
+			charDictionary.put(b[j], 0);
+		}
+
+		for (int i = 1; i <= m; i++) {
+			int db = 0;
+			for (int j = 1; j <= n; j++) {
+				final int i1 = charDictionary.get(b[j - 1]);
+				final int j1 = db;
+				int cost = 1;
 				if (a[i - 1] == b[j - 1]) {
-					d = 0;
-					DB = j;
+					cost = 0;
+					db = j;
 				}
-				H[i + 1][j + 1] = min(H[i][j] + d, H[i + 1][j] + 1, H[i][j + 1] + 1,
-						H[i1][j1] + ((i - i1 - 1)) + 1 + ((j - j1 - 1)));
+				d[i + 1][j + 1] =  Math.min(d[i][j] + cost,  Math.min(d[i + 1][j] + 1,  Math.min(d[i][j + 1] + 1,
+						d[i1][j1] + ((i - i1 - 1)) + 1 + ((j - j1 - 1)))));
 			}
-			DA.put(a[i - 1], i);
+			charDictionary.put(a[i - 1], i);
 		}
-		return H[a.length + 1][b.length + 1];
+		return d[m + 1][n + 1];
 	}
 
-	public int min(int a, int b, int c, int d) {
-		return Math.min(a, Math.min(b, Math.min(c, d)));
-	}
+//	public int min(int a, int b, int c, int d) {
+//		return Math.min(a, Math.min(b, Math.min(c, d)));
+//	}
 }

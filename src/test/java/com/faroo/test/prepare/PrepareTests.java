@@ -2,10 +2,10 @@ package com.faroo.test.prepare;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,14 +14,24 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.faroo.test.perf.algo.bk.BkWordSearch;
+import com.faroo.test.perf.algo.bk.StringMatcher;
+import com.faroo.test.unit.TestData;
 
 public class PrepareTests {
 
-	static String path = "C:\\WORK\\git\\symspell\\src\\test\\resources\\test_data\\";//"/home/alpapad/git/symspell/src/test/resources/test_data/";
-	static String errors = path + "errors.txt";
-	// static String corpus = path + "frequency_dictionary_en_82_765.txt";
-	static String corpus = path + "frequency_dictionary_en_500_000.txt";
+	static String path = "/home/alpapad/git/symspell/src/test/resources/test_data/";
+	
+	static String errors = "/test_data/errors.txt";
+	static String corpus = "/test_data/frequency_dictionary_en_500_000.txt";
+
+	static StringMatcher<Void> matcher;
+	
+	
+	static List<String> lookup(String searchQuery, int distance) {
+		return matcher.search(searchQuery.trim().toLowerCase(),  distance)
+				.stream().map(item -> item.getKeyword().toString())//
+				.collect(Collectors.toList());
+	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Set<String> correct = loadCorrect();
@@ -35,30 +45,28 @@ public class PrepareTests {
 		corpus.addAll(correct);
 		dumpCorpus(path + "/../corpus_500k.txt", corpus);
 
-		for (int i = 0; i <= 3; i++) {
-			BkWordSearch bk = new BkWordSearch(i);
+		for (int distance = 0; distance <= 3; distance++) {
+			matcher = new StringMatcher<>();
 			for (String word : corpus) {
-				bk.indexWord(word);
+				matcher.add(word.trim().toLowerCase(), (Void)null);
 			}
-			bk.finishIndexing();
-			System.err.println("Done indexing (dist =" + i + ")...");
+			System.err.println("Done indexing (distance =" + distance + ")...");
 			Map<String, List<String>> results = new HashMap<>();
 			for (String word : query) {
-				List<String> found = bk.findAllWords(word);
+				List<String> found = lookup(word, distance);
 
 				results.put(word, found);
-				//System.err.println(word + "==" + found);
 			}
-			System.err.println("Saving  results (dist =" + i + ")...");
-			dumpTestFile(path + "/../test_dist" + i + "_500k.txt", results);
+			System.err.println("Saving  results (distance =" + distance + ")...");
+			dumpTestFile(path + "/../test_dist" + distance + "_500k.txt", results);
 		}
 	}
 
-	static Set<String> loadQuery() {
+	static Set<String> loadQuery() throws UnsupportedEncodingException, IOException {
 		Set<String> testList = new HashSet<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(errors))) {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(TestData.class.getResourceAsStream(errors), "UTF8"))) {
 			String line;
-			// process a single line at a time only for memory efficiency
 			while ((line = br.readLine()) != null) {
 				String[] lineParts = line.split(",");
 				if (lineParts.length >= 2) {
@@ -67,21 +75,15 @@ public class PrepareTests {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		return testList;
 	}
 
-	static Set<String> loadCorrect() {
+	static Set<String> loadCorrect() throws UnsupportedEncodingException, IOException {
 		Set<String> testList = new HashSet<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(errors))) {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(TestData.class.getResourceAsStream(errors), "UTF8"))) {
 			String line;
-			// process a single line at a time only for memory efficiency
 			while ((line = br.readLine()) != null) {
 				String[] lineParts = line.split(",");
 				if (lineParts.length >= 2) {
@@ -90,21 +92,15 @@ public class PrepareTests {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return testList;
 	}
 
-	static Set<String> loadCorpus() {
+	static Set<String> loadCorpus() throws IOException {
 		Set<String> testList = new HashSet<>();
-		try (BufferedReader br = new BufferedReader(new FileReader(corpus))) {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(TestData.class.getResourceAsStream(corpus), "UTF8"))) {
 			String line;
-			// process a single line at a time only for memory efficiency
 			while ((line = br.readLine()) != null) {
 				String[] lineParts = line.split("\\s+");
 				if (lineParts.length > 0) {
@@ -113,28 +109,19 @@ public class PrepareTests {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return testList;
 	}
 
-	static void dumpCorpus(String fileName, Set<String> data) {
+	static void dumpCorpus(String fileName, Set<String> data) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));) {
 			for (String s : data) {
 				writer.write(s + "\n");
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 
-	static void dumpTestFile(String fileName, Map<String, List<String>> data) {
+	static void dumpTestFile(String fileName, Map<String, List<String>> data) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));) {
 			for (Entry<String, List<String>> e : data.entrySet()) {
 				writer.write(e.getKey());
@@ -142,9 +129,6 @@ public class PrepareTests {
 				writer.write(e.getValue().stream().collect(Collectors.joining("@@")));
 				writer.write("\n");
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

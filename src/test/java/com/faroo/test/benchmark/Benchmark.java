@@ -18,8 +18,9 @@ public class Benchmark {
 	//static String errors = path + "/noisy_query_en_1000.txt";
 	//static String errors = path + "/batch0.tab";
 	static String Query1k = Path + "/errors.txt";
-	static String[] DictionaryPath = { Path + "/frequency_dictionary_en_30_000.txt",
-			 Path + "/frequency_dictionary_en_82_765.txt",
+	static String[] DictionaryPath = { //
+			Path + "/frequency_dictionary_en_30_000.txt",//
+			Path + "/frequency_dictionary_en_82_765.txt",//
 			Path + "/frequency_dictionary_en_500_000.txt" };
 
 	static String[] DictionaryName = { "30k", "82k", "500k" };
