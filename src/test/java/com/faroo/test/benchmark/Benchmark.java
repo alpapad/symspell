@@ -290,8 +290,8 @@ public class Benchmark {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		WarmUp();
-		gc();
-		gc();
+		//gc();
+		//gc();
 		gc();
 		BenchmarkPrecalculationLookup();
 		System.out.println();

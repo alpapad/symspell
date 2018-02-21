@@ -19,6 +19,9 @@ public class JaroWinklerDistance implements IDistance{
      */
     public static final int INDEX_NOT_FOUND = -1;
 
+    public Double apply(final String left, final String right) {
+    	return this.apply(left.toCharArray(), right.toCharArray());
+    }
     /**
      * Find the Jaro Winkler Distance which indicates the similarity score
      * between two CharSequences.

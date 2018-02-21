@@ -19,8 +19,8 @@ import java.util.Arrays;
  * implements the simpler restricted edit distance. For most purposes, it works
  * fine. The main difference is that it only allows a substring to be edited
  * once. Using the a literal implementation of Damerau, the distance between
- * “CA” and “ABC” is 2 (CA->AC->ABC). With the restricted edit distance version,
- * the distance is 3 (CA->A->AB->ABC). This is because in this case it can’t do
+ * â€œCAâ€� and â€œABCâ€� is 2 (CA->AC->ABC). With the restricted edit distance version,
+ * the distance is 3 (CA->A->AB->ABC). This is because in this case it canâ€™t do
  * the transpose and then edit the substring a second time by inserting the B
  * between the two characters.
  * 
@@ -100,6 +100,13 @@ public class RestrictedDamerauLevenshteinDistance implements IDistance{
 	 */
 	public int distance(char[] ina, char[] inb, int maxDistance) {
 
+		if(ina.length == 0) {
+			return inb.length;
+		}
+		if(inb.length == 0) {
+			return inb.length;
+		}
+		
 		int[] v0 = new int[ina.length];
 		int[] v2 = new int[ina.length]; // stores one level further back (offset by +1 position)
 

@@ -18,10 +18,11 @@ import com.faroo.test.perf.algo.bk.BkWordSearch;
 
 public class PrepareTests {
 
-	static String path = "/home/alpapad/git/symspell/src/test/resources/test_data";
-	static String errors = path + "/errors.txt";
-	static String corpus = path + "/frequency_dictionary_en_82_765.txt";
-
+	static String path = "C:\\WORK\\git\\symspell\\src\\test\\resources\\test_data\\";//"/home/alpapad/git/symspell/src/test/resources/test_data/";
+	static String errors = path + "errors.txt";
+	// static String corpus = path + "frequency_dictionary_en_82_765.txt";
+	static String corpus = path + "frequency_dictionary_en_500_000.txt";
+	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Set<String> correct = loadCorrect();
 		System.err.println("Loaded correct words  (" + correct.size() + ")");
@@ -32,7 +33,7 @@ public class PrepareTests {
 		System.err.println("Loaded queries...");
 
 		corpus.addAll(correct);
-		dumpCorpus(path + "/../corpus.txt", corpus);
+		dumpCorpus(path + "/../corpus_500k.txt", corpus);
 
 		for (int i = 0; i <= 3; i++) {
 			BkWordSearch bk = new BkWordSearch(i);
@@ -49,7 +50,7 @@ public class PrepareTests {
 				//System.err.println(word + "==" + found);
 			}
 			System.err.println("Saving  results (dist =" + i + ")...");
-			dumpTestFile(path + "/../test_dist" + i + ".txt", results);
+			dumpTestFile(path + "/../test_dist" + i + "_500k.txt", results);
 		}
 	}
 
