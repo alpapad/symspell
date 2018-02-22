@@ -22,7 +22,7 @@ public class Sym7Test {
 		TestData data = new TestData();
 		for (int i = 0; i <= 3; i++) {
 			System.err.println("Indexing for distance " + i);
-			SymSpell sp = new SymSpell(i,Verbosity.All,DistanceAlgo.Levenshtein);
+			SymSpell sp = new SymSpell(i,Verbosity.All, DistanceAlgo.Levenshtein);
 			for (String w : data.loadCorpus()) {
 				sp.createDictionaryEntry(w.toLowerCase());
 			}

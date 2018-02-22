@@ -7,7 +7,6 @@
  */
 package com.faroo.symspell;
 
-//import static com.faroo.symspell.SipHash.hash;
 import static com.faroo.symspell.hash.XxHash64.hash;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,7 +43,7 @@ public class Dictionary {
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private TLongObjectMap<Object> dictionary = null;//new TLongObjectHashMap<>();
+	private TLongObjectMap<Object> dictionary = null;
 
 	/**
 	 * List of unique words. By using the suggestions (Int) as index for this list
@@ -99,13 +98,11 @@ public class Dictionary {
 				value = new Node();
 				value.suggestions.add(tmp);
 				tempDictionary.put(hash(key), value);
-			}
-
-			// already exists:
-			// 1. word appears several times
-			// 2. word1==deletes(word2)
-			else {
-				value = (Node) valueo;
+			} else {
+				// already exists:
+				// 1. word appears several times
+				// 2. word1==deletes(word2)
+				value = Node.class.cast(valueo);
 			}
 
 			// prevent overflow
@@ -282,9 +279,9 @@ public class Dictionary {
 			}
 
 		});
-
-		dictionary = new TUnmodifiableLongObjectMap<>(dictionary);
 		tempDictionary = null;
+		
+		dictionary = new TUnmodifiableLongObjectMap<>(dictionary);
 	}
 
 	public int getWordCount() {
