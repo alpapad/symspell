@@ -20,7 +20,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 //import org.apache.commons.lang3.time.StopWatch;
 
-import com.faroo.test.perf.algo.bk.BkWordSearch;
+// import com.faroo.test.perf.algo.bk.BkWordSearch;
 import com.faroo.test.perf.algo.sp3.SymSpell3WordSearch;
 import com.faroo.test.perf.algo.sp6.SymSpell6WordSearch;
 import com.faroo.test.perf.algo.sp7.SymSpell7WordSearch;
