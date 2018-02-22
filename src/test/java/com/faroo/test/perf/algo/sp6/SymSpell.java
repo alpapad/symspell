@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gnu.trove.impl.unmodifiable.TUnmodifiableLongObjectMap;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -361,6 +362,7 @@ public class SymSpell {
 			this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
 		}
 		commitStaged(staging);
+		this.deletes = new TUnmodifiableLongObjectMap<>(deletes);
 		return true;
 	}
 
@@ -369,6 +371,7 @@ public class SymSpell {
 			this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
 		}
 		commitStaged(staging);
+		this.deletes = new TUnmodifiableLongObjectMap<>(deletes);
 		return true;
 	}
 

@@ -15,18 +15,18 @@ import com.ibm.icu.text.Transliterator;
 
 public class Benchmark {
 
-	static String Path = "src/test/resources/test_data";
+	static String path = "src/test/resources/test_data";
 	//static String errors = path + "/noisy_query_en_1000.txt";
 	//static String errors = path + "/batch0.tab";
-	static String Query1k = Path + "/errors.txt";
-	static String[] DictionaryPath = { //
-			Path + "/frequency_dictionary_en_30_000.txt",//
-			Path + "/frequency_dictionary_en_82_765.txt",//
-			Path + "/frequency_dictionary_en_500_000.txt" };
+	static String query1k = path + "/errors.txt";
+	static String[] dictionaryPath = { //
+			path + "/frequency_dictionary_en_30_000.txt",//
+			path + "/frequency_dictionary_en_82_765.txt",//
+			path + "/frequency_dictionary_en_500_000.txt" };
 
-	static String[] DictionaryName = { "30k", "82k", "500k" };
+	static String[] dictionaryName = { "30k", "82k", "500k" };
 
-	static int[] DictionarySize = { 29159, 82765, 500000 };
+	static int[] dictionarySize = { 29159, 82765, 500000 };
 
 	static String id = "Any-Latin; nfd; [:nonspacing mark:] remove; nfc";
 	static Transliterator ts = Transliterator.getInstance(id);
@@ -43,13 +43,11 @@ public class Benchmark {
 	}
 	
 	// load 1000 terms with random spelling errors
-	static List<String> BuildQuery1K() {
+	static List<String> buildQuery1K() throws FileNotFoundException, IOException {
 		List<String> testList = new ArrayList<>();
-		int i = 0;
-		try (BufferedReader br = new BufferedReader(new FileReader(Query1k))) {
-
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(query1k))) {
 			String line;
-
 			// process a single line at a time only for memory efficiency
 			while ((line = br.readLine()) != null) {
 				String[] lineParts = line.split("\\s+");
@@ -59,42 +57,30 @@ public class Benchmark {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return testList;
 	}
 
 	// pre-run to ensure code has executed once before timing benchmarks
-	static void WarmUp() {
+	static void warmUp() throws FileNotFoundException, IOException {
 		SymSpell dict = new SymSpell();
-		LoadDictionary(dict, DictionaryPath[0]);
+		loadDictionary(dict, dictionaryPath[0]);
 		dict.lookup("hockie", Verbosity.All, 1);
-
+		
 		com.faroo.test.perf.algo.sp6.SymSpell dictOrig = new com.faroo.test.perf.algo.sp6.SymSpell(2);
-		try {
-			dictOrig.loadDictionary(DictionaryPath[0], 0, 1);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		dictOrig.loadDictionary(dictionaryPath[0], 0, 1);
 
-		//LoadDictionary(dictOrig, DictionaryPath[0]);
-
+		
 		dictOrig.lookup("hockie", com.faroo.test.perf.algo.sp6.SymSpell.Verbosity.All, 1);
 	}
 
-	static long GetTotalMemory(boolean a) {
+	static long getTotalMemory() {
 		gc();
 		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 
-	static void BenchmarkPrecalculationLookup() throws FileNotFoundException, IOException {
-		List<String> query1k = BuildQuery1K();
+	static void benchmarkPrecalculationLookup() throws FileNotFoundException, IOException {
+		List<String> query1k = buildQuery1K();
 		int resultNumber = 0;
 		double repetitions = 1000;
 		int totalLoopCount = 0;
@@ -110,39 +96,39 @@ public class Benchmark {
 			// benchmark dictionary precalculation size and time
 			// maxEditDistance=1/2/3; prefixLength=5/6/7; dictionary=30k/82k/500k;
 			// class=instantiated/static
-			for (int i = 0; i < DictionaryPath.length; i++) {
+			for (int i = 0; i < dictionaryPath.length; i++) {
 				totalLoopCount++;
 
 				// instantiated dictionary
-				long memSize = GetTotalMemory(true);
-				memSize = GetTotalMemory(true);
+				long memSize = getTotalMemory();
+				memSize = getTotalMemory();
 				stopWatch.reset().start();
 				SymSpell dict = new SymSpell(maxEditDistance);
-				LoadDictionary(dict, DictionaryPath[i]);
+				loadDictionary(dict, dictionaryPath[i]);
 				stopWatch.stop();
-				long memDelta = GetTotalMemory(true) - memSize;
+				long memDelta = getTotalMemory() - memSize;
 
 				totalLoadTime += stopWatch.elapsed().getSeconds();
 				totalMem += memDelta / 1024.0 / 1024.0;
 				System.out.println("Precalculation v7 " + stopWatch.elapsed().getSeconds() + "s "
 						+ (memDelta / 1024.0 / 1024.0) + "MB " + dict.getWordCount() + " words " + dict.getEntryCount()
 						+ " entries  MaxEditDistance=" + maxEditDistance +" dict="
-						+ DictionaryName[i]);
+						+ dictionaryName[i]);
 
 				// static dictionary
-				memSize = GetTotalMemory(true);
+				memSize = getTotalMemory();
 				stopWatch.reset().start();
 				com.faroo.test.perf.algo.sp6.SymSpell dictOrig = new com.faroo.test.perf.algo.sp6.SymSpell(maxEditDistance);
-				dictOrig.loadDictionary(DictionaryPath[i], 0, 1);
+				dictOrig.loadDictionary(dictionaryPath[i], 0, 1);
 				//LoadDictionary(dictOrig, DictionaryPath[i]);
 				totalOrigLoadTime += stopWatch.stop().elapsed().getSeconds();
 
-				memDelta = GetTotalMemory(true) - memSize;
+				memDelta = getTotalMemory() - memSize;
 				totalOrigMem += memDelta / 1024.0 / 1024.0;
 
 				System.out.println("Precalculation v3 " + stopWatch.elapsed().getSeconds() + "s "
 						+ (memDelta / 1024 / 1024.0) + "MB " + dictOrig.getWordCount() + " words "
-						+ dictOrig.getEntryCount() + " entries  MaxEditDistance=" + maxEditDistance  + " dict=" + DictionaryName[i]);
+						+ dictOrig.getEntryCount() + " entries  MaxEditDistance=" + maxEditDistance  + " dict=" + dictionaryName[i]);
 
 				// benchmark lookup result number and time
 				// maxEditDistance=1/2/3; prefixLength=5/6/7; dictionary=30k/82k/500k;
@@ -231,26 +217,22 @@ public class Benchmark {
 				dictOrig = null;
 			}
 		}
-		System.out.println("Average Precalculation time instance " + (totalLoadTime / totalLoopCount) + "s   "	+ ((totalLoadTime / totalOrigLoadTime) - 1));
-		System.out.println("Average Precalculation time static   " + (totalOrigLoadTime / totalLoopCount) + "s");
-		System.out.println("Average Precalculation memory instance " + (totalMem / totalLoopCount) + "MB " + ((totalMem / totalOrigMem) - 1));
-		System.out.println("Average Precalculation memory static   " + (totalOrigMem / totalLoopCount) + "MB");
-		System.out.println("Average lookup time instance " + (totalLookupTime / totalRepetitions) + "ns          " + ((totalLookupTime / totalOrigLookupTime) - 1));
-		System.out.println("Average lookup time static   " + (totalOrigLookupTime / totalRepetitions) + "ns");
-		System.out.println("Total lookup results instance " + totalMatches + "      " + (totalMatches - totalOrigMatches) + " differences");
-		System.out.println("Total lookup results static   " + totalOrigMatches);
+		System.out.println("Average Precalculation time v7 " + (totalLoadTime / totalLoopCount) + "s   "	+ ((totalLoadTime / totalOrigLoadTime) - 1));
+		System.out.println("Average Precalculation time v3 " + (totalOrigLoadTime / totalLoopCount) + "s");
+		System.out.println("Average Precalculation memory v7 " + (totalMem / totalLoopCount) + "MB " + ((totalMem / totalOrigMem) - 1));
+		System.out.println("Average Precalculation memory v3 " + (totalOrigMem / totalLoopCount) + "MB");
+		System.out.println("Average lookup time v7 " + (totalLookupTime / totalRepetitions) + "ns          " + ((totalLookupTime / totalOrigLookupTime) - 1));
+		System.out.println("Average lookup time v3 " + (totalOrigLookupTime / totalRepetitions) + "ns");
+		System.out.println("Total lookup results v7 " + totalMatches + "      " + (totalMatches - totalOrigMatches) + " differences");
+		System.out.println("Total lookup results v3 " + totalOrigMatches);
 	}
 
-	static void LoadDictionary(SymSpell dict, String corpus) {
+	static void loadDictionary(SymSpell dict, String corpus) throws FileNotFoundException, IOException {
 		File f = new File(corpus);
 		if (!(f.exists() && !f.isDirectory())) {
 			System.out.println("File not found: " + corpus);
 			return;
 		}
-
-		// System.out.println("Creating dictionary ...");
-		// long startTime = System.currentTimeMillis();
-		// long wordCount = 0;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(corpus))) {
 			String line;
@@ -260,23 +242,17 @@ public class Benchmark {
 					dict.createDictionaryEntry(ts.transform(l1[0].trim().toLowerCase()));
 				}
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		dict.commit();
 	}
 
-	static void LoadDictionary(com.faroo.test.perf.algo.sp3.SymSpell dict, String corpus) {
+	static void loadDictionary(com.faroo.test.perf.algo.sp3.SymSpell dict, String corpus) throws FileNotFoundException, IOException {
 		File f = new File(corpus);
 		if (!(f.exists() && !f.isDirectory())) {
 			System.out.println("File not found: " + corpus);
 			return;
 		}
 
-		// System.out.println("Creating dictionary ...");
-		// long startTime = System.currentTimeMillis();
-		// long wordCount = 0;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(corpus))) {
 			String line;
@@ -286,19 +262,16 @@ public class Benchmark {
 					dict.createDictionaryEntry(ts.transform(l1[0].trim().toLowerCase()));
 				}
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 
 	}
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		WarmUp();
+		warmUp();
 		//gc();
 		//gc();
 		gc();
-		BenchmarkPrecalculationLookup();
+		benchmarkPrecalculationLookup();
 		System.out.println();
 	}
 

@@ -20,7 +20,7 @@ public class Sym7Test2 {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		TestData data = new TestData();
 		
-		System.err.println("Indexing for diatance " + 2);
+		System.err.println("Indexing for distance " + 2);
 		SymSpell sp = new SymSpell(3,Verbosity.All,DistanceAlgo.OptimalStringAlignment);
 		for (String w : data.loadCorpus()) {
 			sp.createDictionaryEntry(w.toLowerCase());
@@ -28,7 +28,7 @@ public class Sym7Test2 {
 		sp.commit();
 		
 		Map<String, Set<String>> tests = data.loadTests(1);
-		System.err.println("Searching for diatance " + 1 + " using " + sp.getEntryCount() + " entries...");
+		System.err.println("Searching for distance " + 1 + " using " + sp.getEntryCount() + " entries...");
 		for (Entry<String, Set<String>> entry : tests.entrySet()) {
 			final String word = entry.getKey();
 			Set<String> expected = entry.getValue();

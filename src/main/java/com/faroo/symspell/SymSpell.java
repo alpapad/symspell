@@ -39,7 +39,7 @@ import com.faroo.symspell.distance.IDistance;
 public class SymSpell {
 	private static final int DEFAULT_EDIT_DISTANCE_MAX = 2;
 	private static final Verbosity DEFAULT_VERBOSITY = Verbosity.All;
-	private static final DistanceAlgo DEFAULT_ALGO = DistanceAlgo.Sift4;
+	private static final DistanceAlgo DEFAULT_ALGO = DistanceAlgo.OptimalStringAlignment;
 	
 
 	/*

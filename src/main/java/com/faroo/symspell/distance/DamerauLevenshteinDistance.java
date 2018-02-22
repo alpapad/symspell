@@ -48,8 +48,4 @@ public class DamerauLevenshteinDistance implements IDistance {
 		}
 		return d[m + 1][n + 1];
 	}
-
-//	public int min(int a, int b, int c, int d) {
-//		return Math.min(a, Math.min(b, Math.min(c, d)));
-//	}
 }

@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gnu.trove.impl.unmodifiable.TUnmodifiableLongObjectMap;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.procedure.TLongObjectProcedure;
@@ -43,7 +44,7 @@ public class Dictionary {
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private TLongObjectMap<Object> dictionary = new TLongObjectHashMap<>();
+	private TLongObjectMap<Object> dictionary = null;//new TLongObjectHashMap<>();
 
 	/**
 	 * List of unique words. By using the suggestions (Int) as index for this list
@@ -263,6 +264,8 @@ public class Dictionary {
 			this.hashes[idx] = hash(words[idx]);
 		}
 
+		dictionary = new TLongObjectHashMap<>();
+		
 		this.tempDictionary.forEachEntry(new TLongObjectProcedure<Object>() {
 			@Override
 			public boolean execute(long key, Object value) {
@@ -280,6 +283,7 @@ public class Dictionary {
 
 		});
 
+		dictionary = new TUnmodifiableLongObjectMap<>(dictionary);
 		tempDictionary = null;
 	}
 
