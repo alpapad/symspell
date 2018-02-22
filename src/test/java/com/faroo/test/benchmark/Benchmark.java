@@ -11,6 +11,7 @@ import java.util.List;
 import com.faroo.symspell.SymSpell;
 import com.faroo.symspell.Verbosity;
 import com.google.common.base.Stopwatch;
+import com.ibm.icu.text.Transliterator;
 
 public class Benchmark {
 
@@ -27,6 +28,9 @@ public class Benchmark {
 
 	static int[] DictionarySize = { 29159, 82765, 500000 };
 
+	static String id = "Any-Latin; nfd; [:nonspacing mark:] remove; nfc";
+	static Transliterator ts = Transliterator.getInstance(id);
+	
 	static void gc() {
 		for (int i = 0; i < 2; i++) {
 			System.gc();
@@ -51,7 +55,7 @@ public class Benchmark {
 				String[] lineParts = line.split("\\s+");
 				if (lineParts.length >= 2) {
 					if(lineParts[0] != null && lineParts[0].trim().length() >0) {
-						testList.add(lineParts[0].toLowerCase().trim().replaceAll("\"", ""));
+						testList.add(ts.transform(lineParts[0].toLowerCase().trim().replaceAll("\"", "")));
 					}
 				}
 			}
@@ -253,7 +257,7 @@ public class Benchmark {
 			while ((line = br.readLine()) != null) {
 				String[] l1 = line.split("\\s+");
 				if (l1.length > 0) {
-					dict.createDictionaryEntry(l1[0].trim().toLowerCase());
+					dict.createDictionaryEntry(ts.transform(l1[0].trim().toLowerCase()));
 				}
 			}
 		} catch (Exception e) {
@@ -279,7 +283,7 @@ public class Benchmark {
 			while ((line = br.readLine()) != null) {
 				String[] l1 = line.split("\\s+");
 				if (l1.length > 0) {
-					dict.createDictionaryEntry(l1[0].trim().toLowerCase());
+					dict.createDictionaryEntry(ts.transform(l1[0].trim().toLowerCase()));
 				}
 			}
 		} catch (Exception e) {

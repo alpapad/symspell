@@ -16,16 +16,18 @@ import java.util.stream.Collectors;
 
 import com.faroo.test.perf.algo.bk.StringMatcher;
 import com.faroo.test.unit.TestData;
+import com.ibm.icu.text.Transliterator;
 
 public class PrepareTests {
 
 	static String path = "/home/alpapad/git/symspell/src/test/resources/test_data/";
-	
 	static String errors = "/test_data/errors.txt";
 	static String corpus = "/test_data/frequency_dictionary_en_500_000.txt";
 
 	static StringMatcher<Void> matcher;
 	
+	static String id = "Any-Latin; nfd; [:nonspacing mark:] remove; nfc";
+	static Transliterator ts = Transliterator.getInstance(id);
 	
 	static List<String> lookup(String searchQuery, int distance) {
 		return matcher.search(searchQuery.trim().toLowerCase(),  distance)
@@ -48,12 +50,12 @@ public class PrepareTests {
 		for (int distance = 0; distance <= 70; distance+=10) {
 			matcher = new StringMatcher<>();
 			for (String word : corpus) {
-				matcher.add(word.trim().toLowerCase(), (Void)null);
+				matcher.add(ts.transform(word).trim().toLowerCase(), (Void)null);
 			}
 			System.err.println("Done indexing (distance =" + distance + ")...");
 			Map<String, List<String>> results = new HashMap<>();
 			for (String word : query) {
-				List<String> found = lookup(word, distance);
+				List<String> found = lookup(ts.transform(word), distance);
 
 				results.put(word, found);
 			}
@@ -116,7 +118,7 @@ public class PrepareTests {
 	static void dumpCorpus(String fileName, Set<String> data) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));) {
 			for (String s : data) {
-				writer.write(s + "\n");
+				writer.write(ts.transform(s) + "\n");
 			}
 		} 
 	}
@@ -126,7 +128,7 @@ public class PrepareTests {
 			for (Entry<String, List<String>> e : data.entrySet()) {
 				writer.write(e.getKey());
 				writer.write("==");
-				writer.write(e.getValue().stream().collect(Collectors.joining("@@")));
+				writer.write(e.getValue().stream().map(s->ts.transform(s)).collect(Collectors.joining("@@")));
 				writer.write("\n");
 			}
 		}
