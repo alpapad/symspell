@@ -7,7 +7,7 @@ class StrIterable implements IDictionaryItems {
     private Object[] items;
     private int count;
     private int start;
-
+    private final Object[] single = new Object[1];
     private Iterator<String> iter = new Iterator<String>() {
         @Override
         public boolean hasNext() {
@@ -27,7 +27,8 @@ class StrIterable implements IDictionaryItems {
         if (items instanceof String) {
             this.count = 0;
             this.start = 0;
-            this.items = new Object[] { items };
+            this.items = single;
+            this.single[0] = items;
         } else {
             this.items = (Object[]) items;
             this.count = Integer.class.cast(this.items[0]).intValue();
