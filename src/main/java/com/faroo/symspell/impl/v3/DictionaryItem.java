@@ -8,6 +8,6 @@
 package com.faroo.symspell.impl.v3;
 
 public class DictionaryItem {
-	public String[] suggestions;
-	public int count = 0;
+    public String[] suggestions;
+    public int count = 0;
 }

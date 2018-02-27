@@ -11,26 +11,23 @@ package com.faroo.symspell;
  * Controls the closeness/quantity of returned spelling suggestions.
  */
 public enum Verbosity {
-	/**
-	 * Top suggestion with the highest term frequency of the suggestions of smallest
-	 * edit distance found.
-	 */
-	Top(0),
-	/**
-	 * All suggestions of smallest edit distance found, suggestions ordered by term
-	 * frequency.
-	 */
-	Closest(1),
-	/**
-	 * All suggestions within maxEditDistance, suggestions ordered by edit distance,
-	 * then by term frequency (slower, no early termination).
-	 */
-	All(2);
+    /**
+     * Top suggestion with the highest term frequency of the suggestions of smallest edit distance found.
+     */
+    Top(0),
+    /**
+     * All suggestions of smallest edit distance found, suggestions ordered by term frequency.
+     */
+    Closest(1),
+    /**
+     * All suggestions within maxEditDistance, suggestions ordered by edit distance, then by term frequency (slower, no early termination).
+     */
+    All(2);
 
-	public final int verbose;
+    public final int verbose;
 
-	private Verbosity(int verbosity) {
-		this.verbose = verbosity;
-	}
+    private Verbosity(int verbosity) {
+        this.verbose = verbosity;
+    }
 
 }

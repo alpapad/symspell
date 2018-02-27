@@ -26,7 +26,7 @@ import com.google.common.math.StatsAccumulator;
  *
  * The Symmetric Delete spelling correction algorithm reduces the complexity of edit candidate generation and dictionary lookup for a given Damerau-Levenshtein distance. It is six orders of magnitude faster and language independent. Opposite to other algorithms only deletes are required, no transposes + replaces + inserts. Transposes + replaces + inserts of the input term are
  * transformed into deletes of the dictionary term. Replaces and inserts are expensive and language dependent: e.g. Chinese has 70,000 Unicode Han characters!
- * 
+ *
  * Copyright (C) 2015 Wolf Garbe Version: 3.0 Author: Wolf Garbe <wolf.garbe@faroo.com> Maintainer: Wolf Garbe <wolf.garbe@faroo.com> URL: http://blog.faroo.com/2012/06/07/improved-edit-distance-based-spelling-correction/ Description: http://blog.faroo.com/2012/06/07/improved-edit-distance-based-spelling-correction/
  */
 public class SymSpellV3 implements ISymSpell {
@@ -36,9 +36,9 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
-     * 
+     *
      * For space reduction a item might be either of type dictionaryItem or Int.
-     * 
+     *
      * A dictionaryItem is used for word, word/delete, and delete with multiple suggestions. Int is used for deletes with a single suggestion (the majority of entries).
      */
     private IDictionary dictionary;
@@ -76,7 +76,7 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.faroo.symspell.ISymSpell#lookup(java.lang.String, int)
      */
     @Override
@@ -86,7 +86,7 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.faroo.symspell.ISymSpell#lookup(java.lang.String, com.faroo.symspell.Verbosity, int)
      */
     @Override
@@ -102,10 +102,10 @@ public class SymSpellV3 implements ISymSpell {
         // final LinkedList<String> candidates = new LinkedList<String>();
         final List<String> candidates = new ArrayList<>();
 
-        final Set<String> candidatesSeen = new HashSet<String>();
+        final Set<String> candidatesSeen = new HashSet<>();
 
-        final List<SuggestItem> suggestions = new ArrayList<SuggestItem>();
-        final Set<String> checkedWords = new HashSet<String>();
+        final List<SuggestItem> suggestions = new ArrayList<>();
+        final Set<String> checkedWords = new HashSet<>();
 
         // add original term
         candidates.add(inputStr);
@@ -113,7 +113,7 @@ public class SymSpellV3 implements ISymSpell {
 
         int candidatePointer = 0;
         final IDictionaryItems iterator = dictionary.getIterable();
-        
+
         while (candidatePointer < candidates.size()) {
             final String candidate = candidates.get(candidatePointer++);
             final int candidateLen = candidate.length();
@@ -121,7 +121,7 @@ public class SymSpellV3 implements ISymSpell {
 
             /*
              * save some time - early termination
-             * 
+             *
              * if canddate distance is already higher than suggestion distance, then there are no better suggestions to be expected
              */
             if (lengthDiff > editDistanceMax) {
@@ -247,7 +247,7 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.faroo.symspell.ISymSpell#getMaxlength()
      */
     @Override
@@ -257,7 +257,7 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.faroo.symspell.ISymSpell#getWordCount()
      */
     @Override
@@ -267,7 +267,7 @@ public class SymSpellV3 implements ISymSpell {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.faroo.symspell.ISymSpell#getEntryCount()
      */
     @Override

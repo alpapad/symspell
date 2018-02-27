@@ -13,6 +13,7 @@ class StrIterable implements IDictionaryItems {
         public boolean hasNext() {
             return start < items.length;
         }
+
         @Override
         public String next() {
             return String.class.cast(items[start++]);
@@ -23,10 +24,10 @@ class StrIterable implements IDictionaryItems {
     }
 
     public IDictionaryItems init(Object items) {
-        if(items instanceof String) {
+        if (items instanceof String) {
             this.count = 0;
             this.start = 0;
-            this.items = new Object[]{items};
+            this.items = new Object[] { items };
         } else {
             this.items = (Object[]) items;
             this.count = Integer.class.cast(this.items[0]).intValue();
@@ -35,6 +36,7 @@ class StrIterable implements IDictionaryItems {
         return this;
     }
 
+    @Override
     public int getCount() {
         return count;
     }

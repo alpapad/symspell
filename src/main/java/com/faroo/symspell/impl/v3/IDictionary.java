@@ -7,9 +7,9 @@ public interface IDictionary {
 
     /**
      * For every word there all deletes with an edit distance of 1..editDistanceMax created and added to the tempDictionary every delete entry has a suggestions list, which points to the original term(s) it was created from
-     * 
+     *
      * The tempDictionary may be dynamically updated (word frequency and new words) at any time by calling createDictionaryEntry
-     * 
+     *
      * @param key
      * @return
      */
@@ -18,17 +18,17 @@ public interface IDictionary {
     int getMaxLength();
 
     IDictionaryItems getIterable();
-    
+
     DictionaryItem getEntry(String candidate);
 
     default IDictionaryItems getEntries(String candidate, IDictionaryItems item) {
         DictionaryItem itm = getEntry(candidate);
-        if(itm != null) {
+        if (itm != null) {
             return new StrIterable2(itm);
         }
         return null;
     }
-    
+
     void commit();
 
     int getWordCount();
@@ -37,22 +37,22 @@ public interface IDictionary {
 
     /**
      * Inexpensive and language independent: only deletes, no transposes + replaces +inserts
-     * 
+     *
      * Replaces and inserts are expensive and language dependent (Chinese has 70,000 Unicode Han characters)
-     * 
+     *
      * @param word
      * @param editDistanceMax
      * @return
      */
     default Set<String> edits(String word, int editDistanceMax) {
-        return this.edits(word,0, new LinkedHashSet<String>(), editDistanceMax);
+        return this.edits(word, 0, new LinkedHashSet<String>(), editDistanceMax);
     }
- 
+
     /**
      * Inexpensive and language independent: only deletes, no transposes + replaces +inserts
-     * 
+     *
      * Replaces and inserts are expensive and language dependent (Chinese has 70,000 Unicode Han characters)
-     * 
+     *
      * @param word
      * @param editDistance
      * @param deletes

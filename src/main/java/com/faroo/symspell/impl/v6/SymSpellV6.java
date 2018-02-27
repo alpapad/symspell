@@ -1,19 +1,19 @@
 package com.faroo.symspell.impl.v6;
 
 /**
- * Copyright (C) 2017 Wolf Garbe 
- * 
+ * Copyright (C) 2017 Wolf Garbe
+ *
  * Version: 6.0
  * Author: Wolf Garbe <wolf.garbe@faroo.com>
  * Maintainer: Wolf Garbe <wolf.garbe@faroo.com>
  * URL: https://github.com/wolfgarbe/symspell
- * 
- * Description: http://blog.faroo.com/2012/06/07/improved-edit-distance-based-spelling-correction/ 
- * 
+ *
+ * Description: http://blog.faroo.com/2012/06/07/improved-edit-distance-based-spelling-correction/
+ *
  * License:
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License, 
+ * it under the terms of the GNU Lesser General Public License,
  * version 3.0 (LGPL-3.0) as published by the Free Software Foundation.
  * http://www.opensource.org/licenses/LGPL-3.0
  */
@@ -87,6 +87,7 @@ public class SymSpellV6 implements ISymSpell {
     }
 
     /** Length of longest word in the dictionary. */
+    @Override
     public int getMaxLength() {
         return this.maxLength;
     }
@@ -99,6 +100,7 @@ public class SymSpellV6 implements ISymSpell {
     }
 
     /** Number of unique words in the dictionary. */
+    @Override
     public int getWordCount() {
         return this.words.size();
     }
@@ -110,6 +112,7 @@ public class SymSpellV6 implements ISymSpell {
     /**
      * Number of word prefixes and intermediate word deletes encoded in the dictionary.
      */
+    @Override
     public int getEntryCount() {
         return this.deletes.size();
     }
@@ -124,10 +127,10 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Create a new instanc of SymSpellV3.
-     * 
+     *
      * Specifying ann accurate initialCapacity is not essential, but it can help speed up processing by aleviating the need for data restructuring as the size grows.
-     * 
-     * 
+     *
+     *
      * @param initialCapacity
      *            The expected number of words in dictionary.
      * @param maxDictionaryEditDistance
@@ -158,7 +161,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         this.initialCapacity = initialCapacity;
-        this.words = new TObjectLongHashMap<String>(initialCapacity, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
+        this.words = new TObjectLongHashMap<>(initialCapacity, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
         this.maxDictionaryEditDistance = maxDictionaryEditDistance;
         this.prefixLength = prefixLength;
         this.countThreshold = countThreshold;
@@ -170,10 +173,10 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Create/Update an entry in the dictionary.
-     * 
-     * 
+     *
+     *
      * For every word there are deletes with an edit distance of 1..maxEditDistance created and added to the dictionary. Every delete entry has a suggestions list, which points to the original term(s) it was created from. The dictionary may be dynamically updated (word frequency and new words) at any time by calling CreateDictionaryEntry
-     * 
+     *
      * @param key
      *            The word to add to dictionary.
      * @param count
@@ -261,9 +264,9 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Load multiple dictionary entries from a file of word/frequency count pairs
-     * 
+     *
      * Merges with any dictionary data already loaded.
-     * 
+     *
      * @param corpus
      *            The path+filename of the file.
      * @param termIndex
@@ -304,9 +307,9 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Create a frequency dictionary from a corpus (merges with any dictionary data already loaded)
-     * 
+     *
      * Load multiple dictionary words from a file containing plain text.
-     * 
+     *
      * @param corpus
      *            The path+filename of the file.
      * @return True if file loaded, or false if file not found.
@@ -345,7 +348,7 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Remove all below threshold words from the dictionary.
-     * 
+     *
      * This can be used to reduce memory consumption after populating the dictionary from a corpus using CreateDictionary.
      */
     public void purgeBelowThresholdWords() {
@@ -354,9 +357,9 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Commit staged dictionary additions.
-     * 
+     *
      * Used when you write your own process to load multiple words into the dictionary, and as part of that process, you first created a SuggestionsStage object, and passed that to CreateDictionaryEntry calls.
-     * 
+     *
      * @param staging
      *            The SuggestionStage object storing the staged data.
      */
@@ -366,7 +369,7 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Find suggested spellings for a given input word, using the maximum edit distance specified during construction of the SymSpellV3 dictionary.
-     * 
+     *
      * @param input
      *            The word being spell checked.
      * @param verbose
@@ -384,7 +387,7 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Find suggested spellings for a given input word.
-     * 
+     *
      * @param input
      *            The word being spell checked.
      * @param verbose
@@ -393,25 +396,26 @@ public class SymSpellV6 implements ISymSpell {
      *            The maximum edit distance between input and suggested words.
      * @return A List of SuggestItem object representing suggested correct spellings for the input word, sorted by edit distance, and secondarily by count frequency.
      */
+    @Override
     public List<SuggestItem> lookup(String input, Verbosity verbosity, int maxEditDistance) {
         /*
          * verbose=Top: the suggestion with the highest term frequency of the suggestions of smallest edit distance found
-         * 
+         *
          * verbose=Closest: all suggestions of smallest edit distance found, the suggestions are ordered by term frequency
-         * 
+         *
          * verbose=All: all suggestions <= maxEditDistance, the suggestions are ordered by edit distance, then by term frequency (slower, no early termination)
          */
 
         /*
          * maxEditDistance used in Lookup can't be bigger than the maxDictionaryEditDistance
-         * 
+         *
          * used to construct the underlying dictionary structure.
          */
         if (maxEditDistance > getMaxDictionaryEditDistance()) {
             throw new IndexOutOfBoundsException("maxEditDistance can not be higher than " + getMaxDictionaryEditDistance());
         }
 
-        List<SuggestItem> suggestions = new ArrayList<SuggestItem>();
+        List<SuggestItem> suggestions = new ArrayList<>();
         final int inputLen = input.length();
         // early exit - word is too big to possibly match any words
         if ((inputLen - maxEditDistance) > maxLength) {
@@ -419,9 +423,9 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         // deletes we've considered already
-        final Set<String> consideredDeletes = new HashSet<String>();
+        final Set<String> consideredDeletes = new HashSet<>();
         // suggestions we've considered already
-        final Set<String> consideredSuggestions = new HashSet<String>();
+        final Set<String> consideredSuggestions = new HashSet<>();
 
         // quick look for exact match
         long suggestionCount = words.get(input);
@@ -460,7 +464,7 @@ public class SymSpellV6 implements ISymSpell {
 
             /*
              * save some time - early termination
-             * 
+             *
              * if canddate distance is already higher than suggestion distance, then there are no better suggestions to be expected
              */
             if (lengthDiff > maxEditDistance2) {
@@ -501,15 +505,15 @@ public class SymSpellV6 implements ISymSpell {
 
                     /*
                      * True Damerau-Levenshtein Edit Distance: adjust distance, if both distances>0 We allow simultaneous edits (deletes) of maxEditDistance on both the dictionary and the input term.
-                     * 
+                     *
                      * For replaces and adjacent transposes the resulting edit distance stays <= maxEditDistance.
-                     * 
+                     *
                      * For inserts and deletes the resulting edit distance might exceed maxEditDistance.
                      */
 
                     /*
                      * To prevent suggestions of a higher edit distance, we need to calculate the resulting edit distance, if there are simultaneous edits on both sides. Example: (bank==bnak and bank==bink, but bank!=kanb and bank!=xban and bank!=baxn for maxEditDistance=1)
-                     * 
+                     *
                      * Two deletes on each side of a pair makes them all equal, but the first two pairs have edit distance=1, the others edit distance=2.
                      */
                     int distance = 0;
@@ -627,7 +631,7 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * Check whether all delete chars are present in the suggestion prefix in correct order, otherwise this is just a hash collision
-     * 
+     *
      * @param delete
      * @param deleteLen
      * @param suggestion
@@ -679,17 +683,17 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * create a non-unique wordlist from sample text language independent (e.g. works with Chinese characters)
-     * 
+     *
      * @param text
      * @return
      */
     public static Iterable<String> parseWords(String text) {
         /*
          * \w Alphanumeric characters (including non-latin characters, umlaut characters and digits) plus "_" \d Digits
-         * 
+         *
          * Provides identical results to Norvigs regex "[a-z]+" for latin characters, while additionally providing compatibility with non-latin characters
          */
-        List<String> allMatches = new ArrayList<String>();
+        List<String> allMatches = new ArrayList<>();
         Matcher m = sp.matcher(text.toLowerCase());
         if (m.matches()) {
             while (m.find()) {
@@ -703,7 +707,7 @@ public class SymSpellV6 implements ISymSpell {
 
     /**
      * inexpensive and language independent: only deletes, no transposes + replaces + inserts replaces and inserts are expensive and language dependent (Chinese has 70,000 Unicode Han characters)
-     * 
+     *
      * @param word
      * @param editDistance
      * @param deleteWords
@@ -727,12 +731,12 @@ public class SymSpellV6 implements ISymSpell {
     }
 
     /**
-     * 
+     *
      * @param key
      * @return
      */
     private Set<String> editsPrefix(String key) {
-        Set<String> hashSet = new LinkedHashSet<String>();
+        Set<String> hashSet = new LinkedHashSet<>();
         if (key.length() <= maxDictionaryEditDistance) {
             hashSet.add("");
         }
@@ -744,7 +748,7 @@ public class SymSpellV6 implements ISymSpell {
     }
 
     /**
-     * 
+     *
      * @param s
      * @return
      */

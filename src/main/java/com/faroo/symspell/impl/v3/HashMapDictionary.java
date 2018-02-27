@@ -21,11 +21,11 @@ public class HashMapDictionary implements IDictionary {
 
     /**
      * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
-     * 
+     *
      * Instead of keeping the words as pointers, we use a very low collision hash of the word as a key.
-     * 
+     *
      * For space reduction a item might be either of type of the values can be either an integer or a DictionaryItem
-     * 
+     *
      * A DictionaryItem is used for word, word/delete, and delete with multiple suggestions. integer is used for deletes with a single suggestion (the majority of entries).
      */
     private HashMap<String, Object> dictionary = null;
@@ -54,12 +54,13 @@ public class HashMapDictionary implements IDictionary {
 
     /**
      * For every word there all deletes with an edit distance of 1..editDistanceMax created and added to the tempDictionary every delete entry has a suggestions list, which points to the original term(s) it was created from
-     * 
+     *
      * The tempDictionary may be dynamically updated (word frequency and new words) at any time by calling createDictionaryEntry
-     * 
+     *
      * @param key
      * @return
      */
+    @Override
     public boolean createDictionaryEntry(String key) {
         boolean result = false;
         Node value = null;
@@ -94,11 +95,11 @@ public class HashMapDictionary implements IDictionary {
 
         /*
          * edits/suggestions are created only once, no matter how often word occurs
-         * 
+         *
          * edits/suggestions are created only as soon as the word occurs in the corpus,
-         * 
+         *
          * even if the same term existed before in the tempDictionary as an edit from // another word
-         * 
+         *
          * a treshold might be specifid, when a term occurs so frequently in the corpus that it is considered a valid word for spelling correction
          */
         if (value.count == 1) {
@@ -151,11 +152,12 @@ public class HashMapDictionary implements IDictionary {
         item.suggestions.add(suggestion);
     }
 
-
+    @Override
     public int getMaxLength() {
         return maxlength;
     }
 
+    @Override
     public DictionaryItem getEntry(String candidate) {
         // read candidate entry from tempDictionary
         Object dictionaryEntry = this.dictionary.get(candidate);
@@ -172,6 +174,7 @@ public class HashMapDictionary implements IDictionary {
         return null;
     }
 
+    @Override
     public void commit() {
         dictionary = new HashMap<>();
 
@@ -190,10 +193,12 @@ public class HashMapDictionary implements IDictionary {
         tempDictionary = null;
     }
 
+    @Override
     public int getWordCount() {
         return size;// words.length;
     }
 
+    @Override
     public int getEntryCount() {
         return dictionary.size();
     }
