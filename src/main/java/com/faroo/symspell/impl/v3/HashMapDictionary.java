@@ -197,4 +197,10 @@ public class HashMapDictionary implements IDictionary {
     public int getEntryCount() {
         return dictionary.size();
     }
+
+    @Override
+    public IDictionaryItems getIterable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

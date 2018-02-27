@@ -23,7 +23,7 @@ import gnu.trove.procedure.TLongObjectProcedure;
  * them. A term might be both word and delete from another word at the same
  * time.
  */
-public class HashKeyDictionary implements IDictionary{
+public class HashKeySimpleDictionary2 implements IDictionary{
 	private TLongObjectMap<Object> tempDictionary = new TLongObjectHashMap<>();
 
 	/**
@@ -41,7 +41,7 @@ public class HashKeyDictionary implements IDictionary{
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private TLongObjectMap<Object> dictionary = null;
+	private TLongObjectMap<Object[]> dictionary = null;
 
 	private int wordCount = 0;
 
@@ -56,7 +56,7 @@ public class HashKeyDictionary implements IDictionary{
 		public int count = 0;
 	}
 
-	public HashKeyDictionary(int editDistanceMax, Verbosity verbosity) {
+	public HashKeySimpleDictionary2(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
 		this.verbose = verbosity.verbose;
@@ -174,19 +174,27 @@ public class HashKeyDictionary implements IDictionary{
 	}
 
 	public DictionaryItem getEntry(String candidate) {
-		// read candidate entry from tempDictionary
-		Object dictionaryEntry = this.dictionary.get(hash(candidate));
-
-		if (dictionaryEntry != null) {
-			if (dictionaryEntry instanceof String) {
-				DictionaryItem matchedDictionaryItem = new DictionaryItem();
-				matchedDictionaryItem.suggestions = new String[] { String.class.cast(dictionaryEntry)};
-				return matchedDictionaryItem;
-			} else {
-				return DictionaryItem.class.cast(dictionaryEntry);
-			}
-		}
+//		// read candidate entry from tempDictionary
+//		Object dictionaryEntry = this.dictionary.get(hash(candidate));
+//
+//		if (dictionaryEntry != null) {
+//			if (dictionaryEntry instanceof String) {
+//				DictionaryItem matchedDictionaryItem = new DictionaryItem();
+//				matchedDictionaryItem.suggestions = new String[] { String.class.cast(dictionaryEntry)};
+//				return matchedDictionaryItem;
+//			} else {
+//				return DictionaryItem.class.cast(dictionaryEntry);
+//			}
+//		}
 		return null;
+	}
+	
+	public  IDictionaryItems getEntries(String candidate) {
+	    Object[] dictionaryEntry = this.dictionary.get(hash(candidate));
+	    if(dictionaryEntry != null) {
+	        return new StrIterable3(dictionaryEntry);
+	    }
+	    return null;
 	}
 
 	public void commit() {
@@ -195,13 +203,11 @@ public class HashKeyDictionary implements IDictionary{
 			@Override
 			public boolean execute(long key, Object value) {
 				if (value instanceof String) {
-					dictionary.put(key, value);
+					dictionary.put(key, new Object[] {value});
 				} else {
 					Node itm = Node.class.cast(value);
-					DictionaryItem i = new DictionaryItem();
-					i.count = itm.count;
-					i.suggestions = itm.suggestions.toArray(new String[itm.suggestions.size()]);
-					dictionary.put(key, i);
+					Object[] values = asArray(itm.count, itm.suggestions.toArray(new Object[itm.suggestions.size()]));
+					dictionary.put(key, values);
 					itm.suggestions = null;
 				}
 				return true;
@@ -217,6 +223,25 @@ public class HashKeyDictionary implements IDictionary{
 	public int getEntryCount() {
 		return dictionary.size();
 	}
+	
+    public static  Object[] addAll(Object[] array1, Object... array2) {
+        if (array1 == null) {
+            return array2;
+        } else if (array2 == null) {
+            return array1;
+        }
+        Object[] joinedArray = new Object[array1.length + array2.length];
+        System.arraycopy(array1, 0, joinedArray, 0, array1.length);
+        System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
+        return joinedArray;
+    }
+    
+    public static  Object[] asArray(Object a, Object[] array2) {
+        Object[] joinedArray = new Object[array2.length + 1];
+        joinedArray[0] = a;
+        System.arraycopy(array2, 0, joinedArray, 1, array2.length);
+        return joinedArray;
+    }
 
     @Override
     public IDictionaryItems getIterable() {

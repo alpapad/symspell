@@ -67,7 +67,11 @@ public class Benchmark {
             }
         }
     }
-
+    static void gc1() {
+        for (int i = 0; i < 2; i++) {
+            System.gc();
+        }
+    }
     // load 1000 terms with random spelling errors
     static List<String> buildQuery1K() throws FileNotFoundException, IOException {
         List<String> testList = new ArrayList<>();
@@ -119,7 +123,7 @@ public class Benchmark {
         df.setRoundingMode(RoundingMode.CEILING);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
-        for (int maxEditDistance = 2; maxEditDistance < 3; maxEditDistance++) {
+        for (int maxEditDistance = 2; maxEditDistance <= 3; maxEditDistance++) {
 
             // benchmark dictionary precalculation size and time
             // maxEditDistance=1/2/3; prefixLength=5/6/7; dictionary=30k/82k/500k;
@@ -166,6 +170,7 @@ public class Benchmark {
                     }
 
                     totalLookupTime += stopWatch.stop().elapsed().toNanos();
+                    gc1();
                     totalMatches += resultNumber;
                     System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
                     // static exact
@@ -173,9 +178,9 @@ public class Benchmark {
                     for (int round = 0; round < repetitions; round++) {
                         resultNumber = dictOrig.lookup("different", Verbosity.valueOf(verbosity.name()), maxEditDistance).size();
                     }
-
                     totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
                     totalOrigMatches += resultNumber;
+                    gc1();
                     System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
                     System.out.println();
                     totalRepetitions += repetitions;
@@ -185,8 +190,8 @@ public class Benchmark {
                     for (int round = 0; round < repetitions; round++) {
                         resultNumber = dict.lookup("hockie", verbosity, maxEditDistance).size();
                     }
-                    stopWatch.stop();
-                    totalLookupTime += stopWatch.elapsed().toNanos();
+                    totalLookupTime += stopWatch.stop().elapsed().toNanos();
+                    gc1();
                     totalMatches += resultNumber;
                     System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
                     // static non-exact
@@ -194,8 +199,8 @@ public class Benchmark {
                     for (int round = 0; round < repetitions; round++) {
                         resultNumber = dictOrig.lookup("hockie", verbosity, maxEditDistance).size();
                     }
-                    stopWatch.stop();
-                    totalOrigLookupTime += stopWatch.elapsed().toNanos();
+                    totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
+                    gc1();
                     totalOrigMatches += resultNumber;
                     System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
                     System.out.println();
@@ -210,6 +215,8 @@ public class Benchmark {
 
                     totalLookupTime += stopWatch.stop().elapsed().toNanos();
                     totalMatches += resultNumber;
+                    gc1();
+                    
                     System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
                     // static mix
                     stopWatch.reset().start();
@@ -220,6 +227,7 @@ public class Benchmark {
 
                     totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
                     totalOrigMatches += resultNumber;
+                    gc1();
                     System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
                     System.out.println();
                     totalRepetitions += query1k.size();
@@ -260,7 +268,7 @@ public class Benchmark {
         System.out.println("Average Precalculation memory v6 " + MB(totalOrigMem / totalLoopCount) + " ");
         System.out.println("Average lookup time v3 " + FT(totalLookupTime / totalRepetitions) + "ns          " + PCT((totalLookupTime / totalOrigLookupTime) - 1));
         System.out.println("Average lookup time v6 " + FT(totalOrigLookupTime / totalRepetitions) + "ns");
-        System.out.println("Total lookup results v3 " + totalMatches + "      " + FT(totalMatches - totalOrigMatches) + " differences");
+        System.out.println("Total lookup results v3 " + totalMatches + "      " + (totalMatches - totalOrigMatches) + " differences");
         System.out.println("Total lookup results v6 " + totalOrigMatches);
     }
 

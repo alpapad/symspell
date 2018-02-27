@@ -17,9 +17,11 @@ public interface IDictionary {
 
     int getMaxLength();
 
+    IDictionaryItems getIterable();
+    
     DictionaryItem getEntry(String candidate);
 
-    default IDictionaryItems getEntries(String candidate) {
+    default IDictionaryItems getEntries(String candidate, IDictionaryItems item) {
         DictionaryItem itm = getEntry(candidate);
         if(itm != null) {
             return new StrIterable2(itm);

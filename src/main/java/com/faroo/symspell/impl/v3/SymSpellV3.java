@@ -32,7 +32,7 @@ import com.google.common.math.StatsAccumulator;
 public class SymSpellV3 implements ISymSpell {
     private static final int DEFAULT_EDIT_DISTANCE_MAX = 2;
     private static final Verbosity DEFAULT_VERBOSITY = Verbosity.All;
-    private static final DistanceAlgo DEFAULT_ALGO = DistanceAlgo.Levenshtein;
+    private static final DistanceAlgo DEFAULT_ALGO = DistanceAlgo.OptimalStringAlignment;
 
     /*
      * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
@@ -51,19 +51,19 @@ public class SymSpellV3 implements ISymSpell {
     private Stopwatch stopWatch = Stopwatch.createUnstarted();
 
     public SymSpellV3() {
-        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeyDictionary(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
+        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeySimpleDictionary(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax) {
-        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeyDictionary(editDistanceMax, DEFAULT_VERBOSITY));
+        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeySimpleDictionary(editDistanceMax, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity) {
-        this(editDistanceMax, verbosity, DEFAULT_ALGO, new HashMapDictionary(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, DEFAULT_ALGO, new HashKeySimpleDictionary(editDistanceMax, verbosity));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo) {
-        this(editDistanceMax, verbosity, algo, new HashMapDictionary(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, algo, new HashKeySimpleDictionary(editDistanceMax, verbosity));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IDictionary dictionary) {
@@ -112,7 +112,8 @@ public class SymSpellV3 implements ISymSpell {
         final char[] inputArr = inputStr.toCharArray();
 
         int candidatePointer = 0;
-
+        final IDictionaryItems iterator = dictionary.getIterable();
+        
         while (candidatePointer < candidates.size()) {
             final String candidate = candidates.get(candidatePointer++);
             final int candidateLen = candidate.length();
@@ -141,7 +142,7 @@ public class SymSpellV3 implements ISymSpell {
                 }
 
                 // read candidate entry from dictionary
-                final IDictionaryItems matchedDictionaryItem = dictionary.getEntries(candidate);
+                final IDictionaryItems matchedDictionaryItem = dictionary.getEntries(candidate, iterator);
 
                 if (matchedDictionaryItem != null) {
 
