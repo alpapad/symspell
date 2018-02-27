@@ -3,19 +3,19 @@ package com.faroo.test.perf.algo.sp7;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.faroo.symspell.SymSpell;
+import com.faroo.symspell.impl.v3.SymSpellV3;
 import com.faroo.test.perf.WordSearch;
 
 
 public class SymSpell7WordSearch implements WordSearch {
 
 	boolean commited = false;
-	private final SymSpell symSpell;
+	private final SymSpellV3 symSpell;
 	private final int distance;
 
 	public SymSpell7WordSearch(int distance) {
 		this.distance = distance;
-		this.symSpell = new SymSpell(this.distance);
+		this.symSpell = new SymSpellV3(this.distance);
 	}
 
 	public void finishIndexing() {

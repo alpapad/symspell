@@ -20,8 +20,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 //import org.apache.commons.lang3.time.StopWatch;
 
-// import com.faroo.test.perf.algo.bk.BkWordSearch;
-import com.faroo.test.perf.algo.sp3.SymSpell3WordSearch;
+import com.faroo.test.perf.algo.sp3orig.SymSpell3WordSearch;
 import com.faroo.test.perf.algo.sp6.SymSpell6WordSearch;
 import com.faroo.test.perf.algo.sp7.SymSpell7WordSearch;
 import com.google.common.base.Stopwatch;
@@ -75,12 +74,16 @@ public class WordSearchComparison {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		WordSearch[] wordCorrectImplementations = { //
 				// new BkWordSearch(2), //
-				new SymSpell3WordSearch(2), //
+				//new SymSpell3WordSearch(2), //
 				//new SymSpell3WordSearch(2), //
 				//new SymSpell3WordSearch(2), //
 				new SymSpell6WordSearch(2), //
+				
 				//new SymSpell6WordSearch(2), //
 				//new SymSpell6WordSearch(2), //
+				new SymSpell7WordSearch(2), //
+				
+				new SymSpell6WordSearch(2), //
 				new SymSpell7WordSearch(2), //
 				//new SymSpell7WordSearch(2), //
 				//new SymSpell7WordSearch(2), //

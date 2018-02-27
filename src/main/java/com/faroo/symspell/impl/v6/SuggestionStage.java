@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp6;
+package com.faroo.symspell.impl.v6;
 /**
  * Copyright (C) 2017 Wolf Garbe 
  * 
@@ -31,6 +31,7 @@ import gnu.trove.map.TLongObjectMap;
  * 
  */
 public class SuggestionStage {
+
 	private static class Node {
 		public String suggestion;
 		public int next;
@@ -41,22 +42,44 @@ public class SuggestionStage {
 			this.next = next;
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((suggestion == null) ? 0 : suggestion.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Node other = (Node) obj;
+			if (suggestion == null) {
+				if (other.suggestion != null)
+					return false;
+			} else if (!suggestion.equals(other.suggestion))
+				return false;
+			return true;
+		}
 	}
 
 	private static class Entry {
-		public int count;
 		public int first;
-
+		public int count;
 		public Entry(int count, int first) {
 			super();
-			this.count = count;
 			this.first = first;
+			this.count = count;
 		}
-
 	}
 
-	private HashMap<Long, Entry> deletes;// { get; set; }
-	private ChunkArray<Node> nodes;// { get; set; }
+	private HashMap<Long, Entry> deletes;
+	private ChunkArray<Node> nodes;
 
 	/**
 	 * Create a new instance of SuggestionStage.
@@ -83,7 +106,7 @@ public class SuggestionStage {
 
 	/** Gets the total count of all suggestions for all deletes. */
 	public int getNodeCount() {
-		return nodes.count;
+		return nodes.getCount();
 	}
 
 	/** Clears all the data from the SuggestionStaging. */
@@ -104,7 +127,7 @@ public class SuggestionStage {
 		}
 		int next = entry.first;
 		entry.count++;
-		entry.first = nodes.count;
+		entry.first = nodes.getCount();
 		deletes.put(deleteHash, entry);
 		nodes.add(new Node(suggestion, next));
 	}
@@ -120,11 +143,8 @@ public class SuggestionStage {
 			if (suggestions != null) {
 				i = suggestions.length;
 				String[] newSuggestions = Arrays.copyOf(suggestions, suggestions.length + keyPair.getValue().count);
-				// String[] newSuggestions = new String[suggestions.length + keyPair.getValue().count];
-				// Array.Copy(suggestions, newSuggestions, suggestions.length);
 				permanentDeletes.put(keyPair.getKey().longValue(), newSuggestions);
 				suggestions = newSuggestions;
-				// permanentDeletes[keyPair.Key] = suggestions = newSuggestions;
 			} else {
 				i = 0;
 				suggestions = new String[keyPair.getValue().count];

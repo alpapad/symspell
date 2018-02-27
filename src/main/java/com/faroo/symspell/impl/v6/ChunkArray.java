@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp6;
+package com.faroo.symspell.impl.v6;
 
 /**
  * Copyright (C) 2017 Wolf Garbe 
@@ -30,29 +30,36 @@ import java.util.Arrays;
  * @param <T>
  */
 class ChunkArray<T> {
-	// this must be a power of 2, otherwise can't optimize Row and Col functions
+	/*
+	 * this must be a power of 2, otherwise can't optimize Row and Col functions
+	 */
 	private final int chunkSize = 4096;
 
-	// number of bits to shift right to do division by ChunkSize (the bit position
-	// of ChunkSize)
+	/*
+	 * number of bits to shift right to do division by ChunkSize (the bit position
+	 * of ChunkSize)
+	 */
 	private final int divShift = 12;
 	private Object[][] values;
-	public int count;
+	private int count;
+	private final int chunks;
 
 	public ChunkArray(int initialCapacity) {
-		int chunks = ((initialCapacity + chunkSize) - 1) / chunkSize;
+		chunks = ((initialCapacity + chunkSize) - 1) / chunkSize;
 		values = new Object[chunks][];
 		for (int i = 0; i < values.length; i++) {
 			values[i] = new Object[chunkSize];
 		}
 	}
 
+	public int getCount() {
+		return count;
+	}
+
 	public int add(T value) {
 		if (count == getCapacity()) {
-			// T[][] newValues = (T[][]) new Object[Values.length + 1][];
 			// only need to copy the list of array blocks, not the data in the blocks
 			Object[][] newValues = Arrays.copyOf(values, values.length + 1);
-			// Array.Copy(Values, newValues, Values.Length);
 			newValues[values.length] = new Object[chunkSize];
 			values = newValues;
 		}
@@ -63,6 +70,10 @@ class ChunkArray<T> {
 
 	public void clear() {
 		count = 0;
+		values = new Object[chunks][];
+		for (int i = 0; i < values.length; i++) {
+			values[i] = new Object[chunkSize];
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -71,12 +82,14 @@ class ChunkArray<T> {
 	}
 
 	private int getRow(int index) {
+		// same as index / ChunkSize
 		return index >> divShift;
-	} // same as index / ChunkSize
+	}
 
 	private int getCol(int index) {
+		// same as index % ChunkSize
 		return index & (chunkSize - 1);
-	} // same as index % ChunkSize
+	}
 
 	private int getCapacity() {
 		return values.length * chunkSize;

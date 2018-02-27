@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp3;
+package com.faroo.test.perf.algo.sp3orig;
 
 import java.util.List;
 import java.util.stream.Collectors;

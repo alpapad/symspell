@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp3;
+package com.faroo.test.perf.algo.sp3orig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import com.faroo.symspell.distance.DamerauLevenshteinDistance;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
-// SymSpell: 1 million times faster through Symmetric Delete spelling correction algorithm
+// SymSpellV3: 1 million times faster through Symmetric Delete spelling correction algorithm
 //
 // The Symmetric Delete spelling correction algorithm reduces the complexity of edit candidate generation and dictionary lookup
 // for a given Damerau-Levenshtein distance. It is six orders of magnitude faster and language independent.
@@ -80,7 +80,7 @@ public class SymSpell {
 		}
 	}
 
-	// Dictionary that contains both the original words and the deletes derived from
+	// HashMapDictionary that contains both the original words and the deletes derived from
 	// them. A term might be both word and delete from another word at the same
 	// time.
 	// For space reduction a item might be either of type dictionaryItem or Int.

@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.faroo.symspell.SuggestItem;
-import com.faroo.symspell.SymSpell;
 import com.faroo.symspell.Verbosity;
 import com.faroo.symspell.distance.DistanceAlgo;
+import com.faroo.symspell.impl.v3.SymSpellV3;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
@@ -21,7 +21,7 @@ public class Sym7Test2 {
 		TestData data = new TestData();
 		
 		System.err.println("Indexing for distance " + 2);
-		SymSpell sp = new SymSpell(3,Verbosity.All,DistanceAlgo.OptimalStringAlignment);
+		SymSpellV3 sp = new SymSpellV3(3,Verbosity.All,DistanceAlgo.OptimalStringAlignment);
 		for (String w : data.loadCorpus()) {
 			sp.createDictionaryEntry(w.toLowerCase());
 		}

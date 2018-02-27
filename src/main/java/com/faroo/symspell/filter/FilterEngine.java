@@ -13,8 +13,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.faroo.symspell.SymSpell;
 import com.faroo.symspell.Verbosity;
+import com.faroo.symspell.impl.v3.SymSpellV3;
 import com.faroo.test.unit.TestData;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
@@ -22,7 +22,7 @@ import com.ibm.icu.text.Transliterator;
 
 public class FilterEngine {
 
-	private final SymSpell matcher;
+	private final SymSpellV3 matcher;
 	private int editDistance;
 
 	private final Map<String, FilterIndexEntry> nameToId = new HashMap<>();
@@ -40,7 +40,7 @@ public class FilterEngine {
 
 	public FilterEngine(int editDistance, Verbosity verbose) {
 		this.editDistance = editDistance;
-		matcher = new SymSpell(this.editDistance, verbose);
+		matcher = new SymSpellV3(this.editDistance, verbose);
 		D1 = Math.min(editDistance, 1);
 		D2 = Math.min(editDistance, 2);
 		this.load();

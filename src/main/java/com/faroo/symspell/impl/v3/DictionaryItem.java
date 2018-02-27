@@ -5,9 +5,9 @@
  * version 3.0 (LGPL-3.0) as published by the Free Software Foundation.
  * http://www.opensource.org/licenses/LGPL-3.0
  */
-package com.faroo.symspell;
+package com.faroo.symspell.impl.v3;
 
 public class DictionaryItem {
-	public int[] suggestions;
+	public String[] suggestions;
 	public int count = 0;
 }

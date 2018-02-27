@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp6;
+package com.faroo.symspell.impl.v6;
 
 import java.util.Arrays;
 
