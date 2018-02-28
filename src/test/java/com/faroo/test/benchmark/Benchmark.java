@@ -46,11 +46,11 @@ public class Benchmark {
     }
 
     static String PCT(double number) {
-        return pct.format(number * 100) + "%";
+        return (pct.format(number * 100) + "%");
     }
     
     static String MB(double number) {
-        return df.format(number) + "Mb";
+        return (df.format(number) + "Mb");
     }
     
     static String FT(double number) {

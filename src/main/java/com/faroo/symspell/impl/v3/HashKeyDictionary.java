@@ -68,30 +68,30 @@ public class HashKeyDictionary implements IDictionary {
     @Override
     public boolean createDictionaryEntry(String key) {
         boolean result = false;
-        Node value = null;
+        Node node = null;
         Object valueo = tempDictionary.get(hash(key));
         if (valueo != null) {
             // int or dictionaryItem? delete existed before word!
             if (valueo instanceof String) {
                 String tmp = String.class.cast(valueo);
-                value = new Node();
-                value.suggestions.add(tmp);
-                tempDictionary.put(hash(key), value);
+                node = new Node();
+                node.suggestions.add(tmp);
+                tempDictionary.put(hash(key), node);
             } else {
                 // already exists:
                 // 1. word appears several times
                 // 2. word1==deletes(word2)
-                value = Node.class.cast(valueo);
+            	node = Node.class.cast(valueo);
             }
 
             // prevent overflow
-            if (value.count < Integer.MAX_VALUE) {
-                value.count++;
+            if (node.count < Integer.MAX_VALUE) {
+            	node.count++;
             }
         } else {
-            value = new Node();
-            value.count++;
-            tempDictionary.put(hash(key), value);
+        	node = new Node();
+        	node.count++;
+            tempDictionary.put(hash(key), node);
 
             if (key.length() > maxlength) {
                 maxlength = key.length();
@@ -107,7 +107,7 @@ public class HashKeyDictionary implements IDictionary {
          *
          * a treshold might be specifid, when a term occurs so frequently in the corpus that it is considered a valid word for spelling correction
          */
-        if (value.count == 1) {
+        if (node.count == 1) {
             wordCount++;
             result = true;
             final int maxEditDist = this.restricetdEditDistanceMax;

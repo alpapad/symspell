@@ -9,14 +9,10 @@ package com.faroo.symspell.impl.v3;
 
 import static com.faroo.symspell.hash.XxHash64.hash;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.faroo.symspell.Verbosity;
 
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.procedure.TLongObjectProcedure;
 
 /**
  * HashMapDictionary that contains both the original words and the deletes
@@ -24,7 +20,6 @@ import gnu.trove.procedure.TLongObjectProcedure;
  * the same time.
  */
 public class HashKeySimpleDictionary implements IDictionary {
-	private TLongObjectMap<Object> tempDictionary = new TLongObjectHashMap<>();
 
 	/**
 	 * HashMapDictionary that contains both the original words and the deletes
@@ -41,30 +36,24 @@ public class HashKeySimpleDictionary implements IDictionary {
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private TLongObjectMap<Object> dictionary = null;
+	private final TLongObjectMap<Object> dictionary = new TLongObjectHashMap<>();
 
 	private int wordCount = 0;
 
-	private int verbose = 2;
 	private int restricetdEditDistanceMax = 2;
 
 	public int maxlength = 0;// maximum tempDictionary term length
 
-	private static class Node {
-		public List<String> suggestions = new ArrayList<>();
-		public int count = 0;
-	}
-
 	public HashKeySimpleDictionary(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
-		this.verbose = verbosity.verbose;
 	}
 
 	static int dist(int l, double k) {
 		return (int) Math.round((1d - k) * l);
 	}
 
+	private static final Object[] WORD = new Object[] { null };
 	/**
 	 * For every word there all deletes with an edit distance of 1..editDistanceMax
 	 * created and added to the tempDictionary every delete entry has a suggestions
@@ -79,38 +68,30 @@ public class HashKeySimpleDictionary implements IDictionary {
 	@Override
 	public boolean createDictionaryEntry(String key) {
 		boolean result = false;
-		Node value = null;
-		Object valueo = tempDictionary.get(hash(key));
+		final long kh = hash(key);
+
+		Object current = dictionary.get(kh);
 		boolean newKey = false;
-		if (valueo != null) {
-			// int or dictionaryItem? delete existed before word!
-			if (valueo instanceof String) {
-				String tmp = String.class.cast(valueo);
-				value = new Node();
-				value.suggestions.add(tmp);
-				tempDictionary.put(hash(key), value);
+		if (current != null) {
+			// String  or array? If string, then  delete existed before word!
+			if (current instanceof String) {
+				dictionary.put(kh, new Object[] { null, current });
 				newKey = true;
 			} else {
 				// already exists:
 				// 1. word appears several times
 				// 2. word1==deletes(word2)
-				value = Node.class.cast(valueo);
-				if(value.count == 0) {
+				Object[] value = (Object[]) current;
+				// word1==deletes(word2)
+				if (value[0] != null) {
 					newKey = true;
+					dictionary.put(kh, prepend(null, value));
 				}
 			}
 
-			// prevent overflow
-			if (value.count < Integer.MAX_VALUE) {
-				value.count++;
-			}
-			
 		} else {
 			newKey = true;
-			value = new Node();
-			value.count++;
-			tempDictionary.put(hash(key), value);
-
+			dictionary.put(kh, WORD);
 			if (key.length() > maxlength) {
 				maxlength = key.length();
 			}
@@ -133,26 +114,24 @@ public class HashKeySimpleDictionary implements IDictionary {
 			final int maxEditDist = this.restricetdEditDistanceMax;
 			// create deletes
 			for (String delete : edits(key, maxEditDist)) {
-				Object value2 = tempDictionary.get(hash(delete));
+				long hd = hash(delete);
+
+				Object value2 = dictionary.get(hd);
 				if (value2 != null) {
 					// already exists:
 					// 1. word1==deletes(word2)
 					// 2. deletes(word1)==deletes(word2)
 					// int or dictionaryItem? single delete existed before!
 					if (value2 instanceof String) {
-						// transformes int to dictionaryItem
-						String tmp = String.class.cast(value2);
-						Node di = new Node();
-						di.suggestions.add(tmp);
-						tempDictionary.put(hash(delete), di);
-						if (!di.suggestions.contains(key)) {
-							addLowestDistance(di, key, delete);
+						// a delete
+						if (!value2.equals(key)) {
+							dictionary.put(hd, new Object[] { value2, key });
 						}
-					} else if (!Node.class.cast(value2).suggestions.contains(key)) {
-						addLowestDistance(Node.class.cast(value2), key, delete);
+					} else if (!contains(key, (Object[]) value2)) { 
+						dictionary.put(hd, append((Object[]) value2, key));
 					}
 				} else {
-					tempDictionary.put(hash(delete), key);
+					dictionary.put(hd, key);
 				}
 
 			}
@@ -161,19 +140,22 @@ public class HashKeySimpleDictionary implements IDictionary {
 	}
 
 	// save some time and space
-	private void addLowestDistance(Node item, String suggestion, String delete) {
-		// remove all existing suggestions of higher distance, if verbose<2 index2word
-		// TODO check
-		if ((verbose < 2) && (item.suggestions.size() > 0)
-				&& ((item.suggestions.get(0).length() - delete.length()) > (suggestion.length() - delete.length()))) {
-			item.suggestions.clear();
-		}
-		// do not add suggestion of higher distance than existing, if verbose<2
-		if ((verbose == 2) || (item.suggestions.size() == 0)
-				|| ((item.suggestions.get(0).length() - delete.length()) >= (suggestion.length() - delete.length()))) {
-			item.suggestions.add(suggestion);
-		}
-	}
+	// private void addLowestDistance(Node item, String suggestion, String delete) {
+	// // remove all existing suggestions of higher distance, if verbose<2
+	// index2word
+	// // TODO check
+	// if ((verbose < 2) && (item.suggestions.size() > 0)
+	// && ((item.suggestions.get(0).length() - delete.length()) >
+	// (suggestion.length() - delete.length()))) {
+	// item.suggestions.clear();
+	// }
+	// // do not add suggestion of higher distance than existing, if verbose<2
+	// if ((verbose == 2) || (item.suggestions.size() == 0)
+	// || ((item.suggestions.get(0).length() - delete.length()) >=
+	// (suggestion.length() - delete.length()))) {
+	// item.suggestions.add(suggestion);
+	// }
+	// }
 
 	@Override
 	public int getMaxLength() {
@@ -196,27 +178,6 @@ public class HashKeySimpleDictionary implements IDictionary {
 
 	@Override
 	public void commit() {
-		dictionary = new TLongObjectHashMap<>();
-		this.tempDictionary.forEachEntry(new TLongObjectProcedure<Object>() {
-			@Override
-			public boolean execute(long key, Object value) {
-				if (value instanceof String) {
-					dictionary.put(key, value);
-				} else {
-					Node itm = Node.class.cast(value);
-					Object[] values;
-					if (itm.count > 0) {
-						values = asArray(null, itm.suggestions.toArray(new Object[itm.suggestions.size()]));
-					} else {
-						values = itm.suggestions.toArray(new Object[itm.suggestions.size()]);
-					}
-					dictionary.put(key, values);
-					itm.suggestions = null;
-				}
-				return true;
-			}
-		});
-		tempDictionary = null;
 	}
 
 	@Override
@@ -229,34 +190,43 @@ public class HashKeySimpleDictionary implements IDictionary {
 		return dictionary.size();
 	}
 
-	public static Object[] addAll(Object[] array1, Object... array2) {
-		if (array1 == null) {
-			return array2;
-		} else if (array2 == null) {
-			return array1;
-		}
-		Object[] joinedArray = new Object[array1.length + array2.length];
-		System.arraycopy(array1, 0, joinedArray, 0, array1.length);
-		System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
-		return joinedArray;
-	}
+//	private static Object[] addAll(Object[] array1, Object... array2) {
+//		if (array1 == null) {
+//			return array2;
+//		} else if (array2 == null) {
+//			return array1;
+//		}
+//		Object[] joinedArray = new Object[array1.length + array2.length];
+//		System.arraycopy(array1, 0, joinedArray, 0, array1.length);
+//		System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
+//		return joinedArray;
+//	}
 
-	public static boolean contains(Object value, Object[] array) {
-		if(array == null || array.length == 0) {
+	private static boolean contains(Object value, Object[] array) {
+		if (array == null || array.length == 0) {
 			return false;
 		}
-		for(Object o: array) {
-			if(o != null && o.equals(value)) {
+		for (Object o : array) {
+			if (o != null && o.equals(value)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	public static Object[] asArray(Object a, Object[] array2) {
-		Object[] joinedArray = new Object[array2.length + 1];
+
+	private static Object[] prepend(Object a, Object[] array) {
+		Object[] joinedArray = new Object[array.length + 1];
 		joinedArray[0] = a;
-		System.arraycopy(array2, 0, joinedArray, 1, array2.length);
+		System.arraycopy(array, 0, joinedArray, 1, array.length);
+		assert joinedArray[0] == a;
+		return joinedArray;
+	}
+
+	private static Object[] append(Object[] array, Object a) {
+		Object[] joinedArray = new Object[array.length + 1];
+		joinedArray[array.length] = a;
+		System.arraycopy(array, 0, joinedArray, 0, array.length);
+		assert joinedArray[array.length] == a;
 		return joinedArray;
 	}
 
