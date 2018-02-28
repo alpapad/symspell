@@ -38,7 +38,7 @@ public class Benchmark {
     static Transliterator ts = Transliterator.getInstance(id);
     static DecimalFormat df = new DecimalFormat("#####.##");
     static DecimalFormat ft = new DecimalFormat("00000000.00");
-    static DecimalFormat pct = new DecimalFormat("000.00");
+    static DecimalFormat pct = new DecimalFormat("0.00");
     static {
         df.setRoundingMode(RoundingMode.CEILING);
         ft.setRoundingMode(RoundingMode.CEILING);

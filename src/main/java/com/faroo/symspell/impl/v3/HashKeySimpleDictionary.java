@@ -89,19 +89,22 @@ public class HashKeySimpleDictionary implements IDictionary {
 				value = new Node();
 				value.suggestions.add(tmp);
 				tempDictionary.put(hash(key), value);
-				
+				newKey = true;
 			} else {
 				// already exists:
 				// 1. word appears several times
 				// 2. word1==deletes(word2)
 				value = Node.class.cast(valueo);
+				if(value.count == 0) {
+					newKey = true;
+				}
 			}
 
 			// prevent overflow
 			if (value.count < Integer.MAX_VALUE) {
 				value.count++;
 			}
-			newKey = true;
+			
 		} else {
 			newKey = true;
 			value = new Node();
@@ -238,6 +241,18 @@ public class HashKeySimpleDictionary implements IDictionary {
 		return joinedArray;
 	}
 
+	public static boolean contains(Object value, Object[] array) {
+		if(array == null || array.length == 0) {
+			return false;
+		}
+		for(Object o: array) {
+			if(o != null && o.equals(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static Object[] asArray(Object a, Object[] array2) {
 		Object[] joinedArray = new Object[array2.length + 1];
 		joinedArray[0] = a;
