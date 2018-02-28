@@ -5,7 +5,7 @@ import java.util.Iterator;
 class StrIterable implements IDictionaryItems {
 
     private Object[] items;
-    private int count;
+    private boolean word;
     private int start;
     private final Object[] single = new Object[1];
     private Iterator<String> iter = new Iterator<String>() {
@@ -25,28 +25,26 @@ class StrIterable implements IDictionaryItems {
 
     public IDictionaryItems init(Object items) {
         if (items instanceof String) {
-            this.count = 0;
+            this.word = false;
             this.start = 0;
             this.items = single;
             this.single[0] = items;
         } else {
             this.items = (Object[]) items;
             if(this.items.length > 0 && this.items[0] == null) {
-                this.count = 1;
+                this.word = true;
                 this.start = 1;
             } else {
-            	this.count = 0;
+            	this.word = false;
             	this.start = 0;
             }
-//            this.count = Integer.class.cast(this.items[0]).intValue();
-//            this.start = 1;
         }
         return this;
     }
 
     @Override
-    public int getCount() {
-        return count;
+    public boolean isWord() {
+        return word;
     }
 
     @Override

@@ -5,17 +5,17 @@ import java.util.Iterator;
 class StrIterable2 implements IDictionaryItems {
 
     private final DictionaryItem items;
-    private final int count;
+    private final boolean word;
 
     public StrIterable2(DictionaryItem items) {
         super();
         this.items = items;
-        this.count = items.count;
+        this.word = items.count >0 ;
     }
 
     @Override
-    public int getCount() {
-        return count;
+    public boolean isWord() {
+        return word;
     }
 
     @Override

@@ -81,6 +81,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 		boolean result = false;
 		Node value = null;
 		Object valueo = tempDictionary.get(hash(key));
+		boolean newKey = false;
 		if (valueo != null) {
 			// int or dictionaryItem? delete existed before word!
 			if (valueo instanceof String) {
@@ -88,6 +89,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 				value = new Node();
 				value.suggestions.add(tmp);
 				tempDictionary.put(hash(key), value);
+				
 			} else {
 				// already exists:
 				// 1. word appears several times
@@ -99,7 +101,9 @@ public class HashKeySimpleDictionary implements IDictionary {
 			if (value.count < Integer.MAX_VALUE) {
 				value.count++;
 			}
+			newKey = true;
 		} else {
+			newKey = true;
 			value = new Node();
 			value.count++;
 			tempDictionary.put(hash(key), value);
@@ -120,7 +124,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 		 * a treshold might be specifid, when a term occurs so frequently in the corpus
 		 * that it is considered a valid word for spelling correction
 		 */
-		if (value.count == 1) {
+		if (newKey) {
 			wordCount++;
 			result = true;
 			final int maxEditDist = this.restricetdEditDistanceMax;

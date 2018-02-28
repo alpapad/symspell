@@ -123,7 +123,7 @@ public class Benchmark {
         df.setRoundingMode(RoundingMode.CEILING);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
-        for (int maxEditDistance = 2; maxEditDistance <= 3; maxEditDistance++) {
+        for (int maxEditDistance = 2; maxEditDistance < 3; maxEditDistance++) {
 
             // benchmark dictionary precalculation size and time
             // maxEditDistance=1/2/3; prefixLength=5/6/7; dictionary=30k/82k/500k;

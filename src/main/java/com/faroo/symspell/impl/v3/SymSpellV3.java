@@ -142,14 +142,14 @@ public class SymSpellV3 implements ISymSpell {
                 }
 
                 // read candidate entry from dictionary
-                final IDictionaryItems matchedDictionaryItem = dictionary.getEntries(candidate, iterator);
+                final IDictionaryItems entries = dictionary.getEntries(candidate, iterator);
 
-                if (matchedDictionaryItem != null) {
+                if (entries != null) {
 
                     // if count>0 then candidate entry is correct dictionary term, not only delete item
-                    if ((matchedDictionaryItem.getCount() > 0) && checkedWords.add(candidate)) {
+                    if (entries.isWord() && checkedWords.add(candidate)) {
                         // add correct dictionary term to suggestion list
-                        suggestions.add(new SuggestItem(candidate, lengthDiff, matchedDictionaryItem.getCount()));
+                        suggestions.add(new SuggestItem(candidate, lengthDiff, 0));
                         // early termination
                         if ((verbose < 2) && (lengthDiff == 0)) {
                             break nosort;
@@ -158,7 +158,7 @@ public class SymSpellV3 implements ISymSpell {
 
                     // iterate through suggestions (to other correct dictionary items) of delete
                     // item and add them to suggestion list
-                    for (final String suggestionStr : matchedDictionaryItem) {
+                    for (final String suggestionStr : entries) {
                         // save some time
                         // skipping double items early: different deletes of the input term can lead to
                         // the same suggestion
