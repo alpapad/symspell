@@ -31,8 +31,15 @@ class StrIterable implements IDictionaryItems {
             this.single[0] = items;
         } else {
             this.items = (Object[]) items;
-            this.count = Integer.class.cast(this.items[0]).intValue();
-            this.start = 1;
+            if(this.items.length > 0 && this.items[0] == null) {
+                this.count = 1;
+                this.start = 1;
+            } else {
+            	this.count = 0;
+            	this.start = 0;
+            }
+//            this.count = Integer.class.cast(this.items[0]).intValue();
+//            this.start = 1;
         }
         return this;
     }
