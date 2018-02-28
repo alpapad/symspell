@@ -44,6 +44,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 
 	public int maxlength = 0;// maximum tempDictionary term length
 
+	private final ThreadLocal<StrIterable> it = new ThreadLocal<>();
 	public HashKeySimpleDictionary(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
@@ -67,6 +68,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 	 */
 	@Override
 	public boolean createDictionaryEntry(String key) {
+		key = key.intern();
 		boolean result = false;
 		final long kh = hash(key);
 
@@ -114,16 +116,16 @@ public class HashKeySimpleDictionary implements IDictionary {
 			final int maxEditDist = this.restricetdEditDistanceMax;
 			// create deletes
 			for (String delete : edits(key, maxEditDist)) {
-				long hd = hash(delete);
+				final long hd = hash(delete);
 
 				Object value2 = dictionary.get(hd);
 				if (value2 != null) {
 					// already exists:
 					// 1. word1==deletes(word2)
 					// 2. deletes(word1)==deletes(word2)
-					// int or dictionaryItem? single delete existed before!
+
+					// String or array? single delete existed before!
 					if (value2 instanceof String) {
-						// a delete
 						if (!value2.equals(key)) {
 							dictionary.put(hd, new Object[] { value2, key });
 						}
@@ -190,18 +192,6 @@ public class HashKeySimpleDictionary implements IDictionary {
 		return dictionary.size();
 	}
 
-//	private static Object[] addAll(Object[] array1, Object... array2) {
-//		if (array1 == null) {
-//			return array2;
-//		} else if (array2 == null) {
-//			return array1;
-//		}
-//		Object[] joinedArray = new Object[array1.length + array2.length];
-//		System.arraycopy(array1, 0, joinedArray, 0, array1.length);
-//		System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
-//		return joinedArray;
-//	}
-
 	private static boolean contains(Object value, Object[] array) {
 		if (array == null || array.length == 0) {
 			return false;
@@ -232,6 +222,11 @@ public class HashKeySimpleDictionary implements IDictionary {
 
 	@Override
 	public IDictionaryItems getIterable() {
-		return new StrIterable();
+		StrIterable ter = it.get();
+		if(ter == null) {
+			ter = new StrIterable();
+			it.set(ter);
+		}
+		return ter;
 	}
 }

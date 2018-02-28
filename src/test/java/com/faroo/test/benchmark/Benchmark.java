@@ -20,7 +20,12 @@ import com.google.common.base.Stopwatch;
 import com.ibm.icu.text.Transliterator;
 
 public class Benchmark {
-
+/*
+ * Run params: 
+ * -XX:+UseG1GC -Xms10G -XX:StringTableSize=1000003 -XX:+PrintFlagsFinal -verbose:gc -XX:+PrintStringTableStatistics
+ * 
+ * -XX:StringTableSize=10000019 // 10mil
+ */
     static String path = "src/test/resources/test_data";
     // static String errors = path + "/noisy_query_en_1000.txt";
     // static String errors = path + "/batch0.tab";

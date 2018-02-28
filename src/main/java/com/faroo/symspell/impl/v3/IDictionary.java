@@ -65,7 +65,7 @@ public interface IDictionary {
             for (int i = 0; i < word.length(); i++) {
                 // delete ith character
                 String delete = word.substring(0, i) + word.substring(i + 1);
-                if (deletes.add(delete)) {
+                if (deletes.add(delete.intern())) {
                     // recursion, if maximum edit distance not yet reached
                     if (editDistance < editDistanceMax) {
                         edits(delete, editDistance, deletes, editDistanceMax);

@@ -149,7 +149,7 @@ public class SymSpellV3 implements ISymSpell {
                     // if count>0 then candidate entry is correct dictionary term, not only delete item
                     if (entries.isWord() && checkedWords.add(candidate)) {
                         // add correct dictionary term to suggestion list
-                        suggestions.add(new SuggestItem(candidate, lengthDiff, 0));
+                        suggestions.add(new SuggestItem(candidate, lengthDiff));
                         // early termination
                         if ((verbose < 2) && (lengthDiff == 0)) {
                             break nosort;
@@ -203,7 +203,7 @@ public class SymSpellV3 implements ISymSpell {
                             }
 
                             if (distance <= editDistanceMax) {
-                                suggestions.add(new SuggestItem(suggestionStr, distance, 0));
+                                suggestions.add(new SuggestItem(suggestionStr, distance));
                             }
                         }
                     } // end foreach

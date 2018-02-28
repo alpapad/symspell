@@ -36,6 +36,21 @@ public class SuggestItem implements Comparable<SuggestItem> {
      *            The suggested word.
      * @param distance
      *            Edit distance from search word.
+     *
+     */
+    public SuggestItem(String term, int distance) {
+        this.term = term;
+        this.distance = distance;
+        this.count = 0;
+    }
+    
+    /**
+     * Create a new instance of SuggestItem.
+     *
+     * @param term
+     *            The suggested word.
+     * @param distance
+     *            Edit distance from search word.
      * @param count
      *            Frequency of suggestion in dictionary.
      *
