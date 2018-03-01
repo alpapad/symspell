@@ -9,9 +9,13 @@ package com.faroo.symspell.impl.v3;
 
 import static com.faroo.symspell.hash.XxHash64.hash;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import com.faroo.symspell.Verbosity;
 
-import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
@@ -19,7 +23,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * derived from them. A term might be both word and delete from another word at
  * the same time.
  */
-public class HashKeySimpleDictionary implements IDictionary {
+public class HashKeySimpleDictionary implements IDictionary , Externalizable{
 
 	/**
 	 * HashMapDictionary that contains both the original words and the deletes
@@ -36,7 +40,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private final TLongObjectMap<Object> dictionary = new TLongObjectHashMap<>();
+	private final TLongObjectHashMap<Object> dictionary = new TLongObjectHashMap<>();
 
 	private int wordCount = 0;
 
@@ -180,6 +184,7 @@ public class HashKeySimpleDictionary implements IDictionary {
 
 	@Override
 	public void commit() {
+	    dictionary.compact();
 	}
 
 	@Override
@@ -229,4 +234,25 @@ public class HashKeySimpleDictionary implements IDictionary {
 		}
 		return ter;
 	}
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeByte( 0 );
+        out.write(wordCount);
+        out.write(restricetdEditDistanceMax);
+        out.write(maxlength);
+        dictionary.compact();
+        dictionary.writeExternal(out);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        // TODO Auto-generated method stub
+        // VERSION
+        in.readByte();
+        wordCount = in.readInt();
+        restricetdEditDistanceMax = in.readInt();
+        maxlength = in.readInt();
+        dictionary.readExternal(in);
+    }
 }
