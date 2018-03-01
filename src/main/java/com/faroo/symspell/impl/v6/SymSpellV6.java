@@ -66,15 +66,15 @@ public class SymSpellV6 implements ISymSpell {
     /*
      * HashMapDictionary that contains a mapping of lists of suggested correction words to the hashCodes of the original words and the deletes derived from them. Collisions of hashCodes is tolerated, because suggestions are ultimately verified via an edit distance function. A list of suggestions might have a single suggestion, or multiple suggestions.
      */
-    private TLongObjectMap<String[]> deletes;
+    private TLongObjectHashMap<String[]> deletes;
     /*
      * HashMapDictionary of unique correct spelling words, and the frequency count for each word.
      */
-    private TObjectLongMap<String> words;
+    private TObjectLongHashMap<String> words;
     /*
      * HashMapDictionary of unique words that are below the count threshold for being considered correct spellings.
      */
-    private TObjectLongMap<String> belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
+    private TObjectLongHashMap<String> belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
 
     /* Maximum edit distance for dictionary precalculation. */
     public int getMaxDictionaryEditDistance() {
@@ -161,7 +161,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         this.initialCapacity = initialCapacity;
-        this.words = new TObjectLongHashMap<>(initialCapacity, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
+        this.words = new TObjectLongHashMap<>(initialCapacity, 1f, NO_ENTRY);
         this.maxDictionaryEditDistance = maxDictionaryEditDistance;
         this.prefixLength = prefixLength;
         this.countThreshold = countThreshold;
@@ -240,7 +240,7 @@ public class SymSpellV6 implements ISymSpell {
             }
         } else {
             if (deletes == null) {
-                this.deletes = new TLongObjectHashMap<>(initialCapacity); // initialisierung
+                this.deletes = new TLongObjectHashMap<>(initialCapacity,1f); // initialisierung
             }
             for (String delete : edits) {
                 long deleteHash = getStringHash(delete);
@@ -299,7 +299,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
+            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -332,7 +332,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
+            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -340,7 +340,7 @@ public class SymSpellV6 implements ISymSpell {
 
     public boolean commit(SuggestionStage staging) {
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount());
+            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -365,6 +365,9 @@ public class SymSpellV6 implements ISymSpell {
      */
     private void commitStaged(SuggestionStage staging) {
         staging.commitTo(deletes);
+        deletes.compact();
+        belowThresholdWords.compact();
+        words.compact();
     }
 
     /**
