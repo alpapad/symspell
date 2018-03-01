@@ -18,6 +18,7 @@ import com.faroo.symspell.SuggestItem;
 import com.faroo.symspell.Verbosity;
 import com.faroo.symspell.distance.DistanceAlgo;
 import com.faroo.symspell.distance.IDistance;
+import com.faroo.symspell.string.StringToCharArr;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.StatsAccumulator;
 
@@ -109,7 +110,7 @@ public class SymSpellV3 implements ISymSpell {
 
         // add original term
         candidates.add(inputStr);
-        final char[] inputArr = inputStr.toCharArray();
+        final char[] inputArr = StringToCharArr.arr(inputStr);//.toCharArray();
 
         int candidatePointer = 0;
         final IDictionaryItems iterator = dictionary.getIterable();

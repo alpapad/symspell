@@ -2,11 +2,13 @@ package com.faroo.symspell.distance;
 
 import java.util.Arrays;
 
+import com.faroo.symspell.string.StringToCharArr;
+
 public class LimitedLevenshteinDistance implements IDistance {
 
     @Override
     public int distance(String left, String right, final int threshold) { // NOPMD
-        return this.distance(left.toCharArray(), right.toCharArray(), threshold);
+        return this.distance(StringToCharArr.arr(left),StringToCharArr.arr(right), threshold);
     }
 
     /**

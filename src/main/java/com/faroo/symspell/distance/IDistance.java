@@ -2,6 +2,8 @@ package com.faroo.symspell.distance;
 
 import java.util.Arrays;
 
+import com.faroo.symspell.string.StringToCharArr;
+
 public interface IDistance {
 
     int distance(char[] ina, char[] inb, int maxDistance);
@@ -9,7 +11,7 @@ public interface IDistance {
     default int distance(String left, char[] rightArr, int editDistanceMax) {
         // common prefixes and suffixes are ignored, because this speeds up the
         // Damerau-Levenshtein/Levenshtein Distance calculation without changing it.
-        char[] leftArr = left.toCharArray();
+        char[] leftArr = StringToCharArr.arr(left);//.toCharArray();
         ;
         int ii = 0;
         int jj = 0;
@@ -53,8 +55,8 @@ public interface IDistance {
 
         // common prefixes and suffixes are ignored, because this speeds up the
         // Damerau-Levenshtein/Levenshtein Distance calculation without changing it.
-        char[] leftArr = left.toCharArray();
-        char[] rightArr = right.toCharArray();
+        char[] leftArr = StringToCharArr.arr(left);//.toCharArray();
+        char[] rightArr = StringToCharArr.arr(right);//.toCharArray();
 
         ;
         int ii = 0;

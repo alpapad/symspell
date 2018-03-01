@@ -2,6 +2,8 @@ package com.faroo.symspell.distance;
 
 import java.util.Arrays;
 
+import com.faroo.symspell.string.StringToCharArr;
+
 /**
  * Computes and returns the Damerau-Levenshtein edit distance between two strings, i.e. the number of insertion, deletion, sustitution, and transposition edits required to transform one string to the other. This value will be >= 0, where 0 indicates identical strings. Comparisons are case sensitive, so for example, "Fred" and "fred" will have a distance of 1. This algorithm is
  * basically the Levenshtein algorithm with a modification that considers transposition of two adjacent characters as a single edit. http://blog.softwx.net/2015/01/optimizing-damerau-levenshtein_15.html https://github.com/softwx/SoftWx.Match
@@ -51,7 +53,11 @@ public class OptimalStringAlignmentDistance implements IDistance {
         if ((inb == null) || inb.trim().isEmpty()) {
             return ina.length();
         }
-        return distance(ina.toCharArray(), inb.toCharArray(), maxDistance);
+        return distance(StringToCharArr.arr(ina), StringToCharArr.arr(inb), maxDistance);
+    }
+
+    public int distance(String left, char[] rightArr, int editDistanceMax) {
+        return distance(StringToCharArr.arr(left), rightArr, editDistanceMax);
     }
 
     /**
