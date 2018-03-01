@@ -40,7 +40,7 @@ public class HashKeySimpleDictionary implements IDictionary , Externalizable{
 	 * suggestions. integer is used for deletes with a single suggestion (the
 	 * majority of entries).
 	 */
-	private final TLongObjectHashMap<Object> dictionary = new TLongObjectHashMap<>();
+	private final TLongObjectHashMap<Object> dictionary = new TLongObjectHashMap<>(100_000,1f);
 
 	private int wordCount = 0;
 
