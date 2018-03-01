@@ -24,6 +24,7 @@ public interface IDistance {
         }
 
         if ((ii > 0) || (jj > 0)) {
+            // FIXME: try to avoid array copy, adjust algos to use offset, len
             return distance(//
                     Arrays.copyOfRange(leftArr, ii, leftArr.length - jj), //
                     Arrays.copyOfRange(rightArr, ii, rightArr.length - jj), //
