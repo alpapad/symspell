@@ -42,9 +42,10 @@ public class TestStore {
         gc();
         System.err.println("Save");
         long mem2 = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - mem;
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("/tmp/object.data"))) {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("c:/tmp/object.data"))) {
             dict.writeExternal(objectOutputStream);
         }
+        System.err.println("Mem:" + mem2/1024/1024);
         dict = null;
         sp = null;
         System.err.println("Load");
@@ -53,12 +54,12 @@ public class TestStore {
         mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         HashKeySimpleDictionary dict2 = new HashKeySimpleDictionary(2,  Verbosity.All);
         
-        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("/tmp/object.data"))) {
+        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("c:/tmp/object.data"))) {
             dict2.readExternal(is);
         }
         long mem3 = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - mem;
         
-        System.err.println(mem2/1024/1024 + " --- " + mem3/1024/1024);
+        System.err.println("Mem:" + mem2/1024/1024 + " --- " + mem3/1024/1024);
     }
 
 }
