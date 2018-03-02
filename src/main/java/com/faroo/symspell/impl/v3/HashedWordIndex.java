@@ -21,7 +21,7 @@ import gnu.trove.procedure.TLongObjectProcedure;
 /**
  * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
  */
-public class HashKeyDictionary implements IDictionary {
+public class HashedWordIndex implements IWordIndex {
     private TLongObjectMap<Object> tempDictionary = new TLongObjectHashMap<>();
 
     /**
@@ -47,7 +47,7 @@ public class HashKeyDictionary implements IDictionary {
         public int count = 0;
     }
 
-    public HashKeyDictionary(int editDistanceMax, Verbosity verbosity) {
+    public HashedWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
         this.verbose = verbosity.verbose;
@@ -208,7 +208,7 @@ public class HashKeyDictionary implements IDictionary {
     }
 
     @Override
-    public IDictionaryItems getIterable() {
+    public IMatchingItemsIterator getIterable() {
         // TODO Auto-generated method stub
         return null;
     }

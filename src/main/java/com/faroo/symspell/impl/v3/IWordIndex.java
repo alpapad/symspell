@@ -3,7 +3,9 @@ package com.faroo.symspell.impl.v3;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public interface IDictionary {
+import com.faroo.symspell.ISymSpellIndex;
+
+public interface IWordIndex extends ISymSpellIndex<SymSpellV3>{
 
     /**
      * For every word there all deletes with an edit distance of 1..editDistanceMax created and added to the tempDictionary every delete entry has a suggestions list, which points to the original term(s) it was created from
@@ -17,14 +19,14 @@ public interface IDictionary {
 
     int getMaxLength();
 
-    IDictionaryItems getIterable();
+    IMatchingItemsIterator getIterable();
 
     DictionaryItem getEntry(String candidate);
 
-    default IDictionaryItems getEntries(String candidate, IDictionaryItems item) {
+    default IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
         DictionaryItem itm = getEntry(candidate);
         if (itm != null) {
-            return new StrIterable2(itm);
+            return new DictionaryItemIterator(itm);
         }
         return null;
     }
@@ -74,5 +76,10 @@ public interface IDictionary {
             }
         }
         return deletes;
+    }
+    
+    
+    default void commitTo(SymSpellV3 engine) {
+        this.commit();
     }
 }

@@ -24,7 +24,7 @@ import gnu.trove.procedure.TLongObjectProcedure;
  * derived from them. A term might be both word and delete from another word at
  * the same time.
  */
-public class HashKeySimpleDictionary implements IDictionary, Externalizable {
+public class CompactWordIndex implements IWordIndex, Externalizable {
 
 	/**
 	 * HashMapDictionary that contains both the original words and the deletes
@@ -49,9 +49,9 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 
 	public int maxlength = 0;// maximum tempDictionary term length
 
-	private final ThreadLocal<StrIterable> it = new ThreadLocal<>();
+	private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
-	public HashKeySimpleDictionary(int editDistanceMax, Verbosity verbosity) {
+	public CompactWordIndex(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
 	}
@@ -177,10 +177,10 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 	}
 
 	@Override
-	public IDictionaryItems getEntries(String candidate, IDictionaryItems item) {
+	public IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
 		Object dictionaryEntry = this.dictionary.get(hash(candidate));
 		if (dictionaryEntry != null) {
-			return StrIterable.class.cast(item).init(dictionaryEntry);
+			return CompactMatchesIterator.class.cast(item).init(dictionaryEntry);
 		}
 		return null;
 	}
@@ -229,10 +229,10 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 	}
 
 	@Override
-	public IDictionaryItems getIterable() {
-		StrIterable ter = it.get();
+	public IMatchingItemsIterator getIterable() {
+		CompactMatchesIterator ter = it.get();
 		if (ter == null) {
-			ter = new StrIterable();
+			ter = new CompactMatchesIterator();
 			it.set(ter);
 		}
 		return ter;
@@ -242,16 +242,10 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeByte(0);
 		out.writeInt(wordCount);
-		System.err.println("WC:" + wordCount);
-
 		out.writeInt(restricetdEditDistanceMax);
-		System.err.println("DIST:" + restricetdEditDistanceMax);
-		System.err.println("MX:" + maxlength);
 		out.writeInt(maxlength);
 		dictionary.compact();
 		int size = dictionary.size();
-		System.err.println("SIZE:" + size);
-
 		out.writeInt(size);
 		dictionary.forEachEntry(new TLongObjectProcedure<Object>() {
 			@Override
@@ -282,8 +276,7 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 						}
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				    throw new RuntimeException(e);
 				}
 				return true;
 			}
@@ -292,17 +285,12 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
 		// VERSION
 		in.readByte();
 		wordCount = in.readInt();
-		System.err.println("WC:" + wordCount);
 		restricetdEditDistanceMax = in.readInt();
-		System.err.println("DIST:" + restricetdEditDistanceMax);
 		maxlength = in.readInt();
-		System.err.println("MX:" + maxlength);
 		int size = in.readInt();
-		System.err.println("SIZE:" + size);
 
 		dictionary.clear();
 		for (int i = 0; i < size; i++) {

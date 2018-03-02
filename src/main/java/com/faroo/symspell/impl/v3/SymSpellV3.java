@@ -42,7 +42,7 @@ public class SymSpellV3 implements ISymSpell {
      *
      * A dictionaryItem is used for word, word/delete, and delete with multiple suggestions. Int is used for deletes with a single suggestion (the majority of entries).
      */
-    private IDictionary dictionary;
+    private IWordIndex dictionary;
     private final IDistance algo;
     public int editDistanceMax;
     private Verbosity verbosity;
@@ -52,22 +52,22 @@ public class SymSpellV3 implements ISymSpell {
     private Stopwatch stopWatch = Stopwatch.createUnstarted();
 
     public SymSpellV3() {
-        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeySimpleDictionary(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
+        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CompactWordIndex(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax) {
-        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new HashKeySimpleDictionary(editDistanceMax, DEFAULT_VERBOSITY));
+        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CompactWordIndex(editDistanceMax, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity) {
-        this(editDistanceMax, verbosity, DEFAULT_ALGO, new HashKeySimpleDictionary(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, DEFAULT_ALGO, new CompactWordIndex(editDistanceMax, verbosity));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo) {
-        this(editDistanceMax, verbosity, algo, new HashKeySimpleDictionary(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, algo, new CompactWordIndex(editDistanceMax, verbosity));
     }
 
-    public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IDictionary dictionary) {
+    public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IWordIndex dictionary) {
         super();
         this.editDistanceMax = editDistanceMax;
         this.verbosity = verbosity;
@@ -113,7 +113,7 @@ public class SymSpellV3 implements ISymSpell {
         final char[] inputArr = StringToCharArr.arr(inputStr);//.toCharArray();
 
         int candidatePointer = 0;
-        final IDictionaryItems iterator = dictionary.getIterable();
+        final IMatchingItemsIterator iterator = dictionary.getIterable();
 
         while (candidatePointer < candidates.size()) {
             final String candidate = candidates.get(candidatePointer++);
@@ -143,7 +143,7 @@ public class SymSpellV3 implements ISymSpell {
                 }
 
                 // read candidate entry from dictionary
-                final IDictionaryItems entries = dictionary.getEntries(candidate, iterator);
+                final IMatchingItemsIterator entries = dictionary.getMatches(candidate, iterator);
 
                 if (entries != null) {
 

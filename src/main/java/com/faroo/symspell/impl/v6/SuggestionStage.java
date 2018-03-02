@@ -21,13 +21,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.faroo.symspell.ISymSpellIndex;
+
 import gnu.trove.map.TLongObjectMap;
 
 /**
  * An intentionally opacque class used to temporarily stage dictionary data during the adding of many words. By staging the data during the building of the dictionary data, significant savings of time can be achieved, as well as a reduction in final memory usage.
  *
  */
-public class SuggestionStage {
+public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
 
     private static class Node {
         public String suggestion;
@@ -159,5 +161,28 @@ public class SuggestionStage {
                 i++;
             }
         }
+    }
+
+    @Override
+    public boolean createDictionaryEntry(String key) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public int getMaxLength() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void commitTo(SymSpellV6 engine) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public int getEntryCount() {
+        return nodes.getCount();
     }
 }

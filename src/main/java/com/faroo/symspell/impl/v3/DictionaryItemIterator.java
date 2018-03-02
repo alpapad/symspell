@@ -2,12 +2,12 @@ package com.faroo.symspell.impl.v3;
 
 import java.util.Iterator;
 
-class StrIterable2 implements IDictionaryItems {
+class DictionaryItemIterator implements IMatchingItemsIterator {
 
     private final DictionaryItem items;
     private final boolean word;
 
-    public StrIterable2(DictionaryItem items) {
+    public DictionaryItemIterator(DictionaryItem items) {
         super();
         this.items = items;
         this.word = items.count >0 ;

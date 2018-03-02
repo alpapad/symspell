@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import com.faroo.symspell.Verbosity;
-import com.faroo.symspell.impl.v3.HashKeySimpleDictionary;
+import com.faroo.symspell.impl.v3.CompactWordIndex;
 
 public class TestLoad {
     static void gc() {
@@ -26,14 +26,25 @@ public class TestLoad {
         long mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         
        
-        HashKeySimpleDictionary dict2 = new HashKeySimpleDictionary(2,  Verbosity.All);
+        CompactWordIndex dict2 = new CompactWordIndex(2,  Verbosity.All);
         
-        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("c:/tmp/object.data"))) {
+        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("/tmp/object.data"))) {
             dict2.readExternal(is);
         }
         gc();
         gc();
         long mem3 = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - mem;
+        
+        System.err.println(mem3/1024/1024);
+        
+        dict2 = new CompactWordIndex(2,  Verbosity.All);
+        
+        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("/tmp/object.data"))) {
+            dict2.readExternal(is);
+        }
+        gc();
+        gc();
+        mem3 = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - mem;
         
         System.err.println(mem3/1024/1024);
     }
