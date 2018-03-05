@@ -56,9 +56,7 @@ public class CompactWordIndex implements IWordIndex, Externalizable {
 		this.restricetdEditDistanceMax = editDistanceMax;
 	}
 
-	static int dist(int l, double k) {
-		return (int) Math.round((1d - k) * l);
-	}
+
 
 	private static final Object[] WORD = new Object[] { null };
 
@@ -120,7 +118,7 @@ public class CompactWordIndex implements IWordIndex, Externalizable {
 		if (newKey) {
 			wordCount++;
 			result = true;
-			final int maxEditDist = this.restricetdEditDistanceMax;
+			final int maxEditDist = this.restricetdEditDistanceMax;// Math.min(dist(key), this.restricetdEditDistanceMax);
 			// create deletes
 			for (String delete : edits(key, maxEditDist)) {
 				final long hd = hash(delete);
@@ -238,39 +236,41 @@ public class CompactWordIndex implements IWordIndex, Externalizable {
 		return ter;
 	}
 
+	private final static byte STRING_VAL = 2;
+	private final static byte NULL_PLUS_STRING_ARR_VAL = 1;
+	private final static byte STRING_ARR_VAL = 0;
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeByte(0);
 		out.writeInt(wordCount);
 		out.writeInt(restricetdEditDistanceMax);
 		out.writeInt(maxlength);
-		dictionary.compact();
-		int size = dictionary.size();
-		out.writeInt(size);
-		dictionary.forEachEntry(new TLongObjectProcedure<Object>() {
+		this.dictionary.compact();
+		out.writeInt(dictionary.size());
+		this.dictionary.forEachEntry(new TLongObjectProcedure<Object>() {
 			@Override
-			public boolean execute(long a, Object b) {
+			public boolean execute(long key, Object value) {
 				try {
-					if (b instanceof String) {
-						out.writeLong(a); // key
+					if (value instanceof String) {
+						out.writeLong(key); // key
 						out.writeInt(1); // len
-						out.writeByte(2); // type = string
-						out.writeUTF(String.class.cast(b)); // value
+						out.writeByte(STRING_VAL); // type = string
+						out.writeUTF(String.class.cast(value)); // value
 					} else {
-						Object[] obs = Object[].class.cast(b);
-						if (obs.length > 0) {
-							out.writeLong(a); // key
-							out.writeInt(obs.length); // len
-							int st = 0;
-							if (obs[0] == null) {
-								out.writeByte(1); // type = null + arr string
-								st = 1;
+						final Object[] values = Object[].class.cast(value);
+						if (values.length > 0) {
+							out.writeLong(key); // key
+							out.writeInt(values.length); // len
+							int start = 0;
+							if (values[0] == null) {
+								out.writeByte(NULL_PLUS_STRING_ARR_VAL); // type = null + arr string
+								start = 1;
 							} else {
-								out.writeByte(0); // type = arr string
+								out.writeByte(STRING_ARR_VAL); // type = arr string
 							}
 
-							for (int i = st; i < obs.length; i++) {
-								String ss = String.class.cast(obs[i]);
+							for (int i = start; i < values.length; i++) {
+								String ss = String.class.cast(values[i]);
 								out.writeUTF(ss);
 							}
 						}
@@ -290,27 +290,28 @@ public class CompactWordIndex implements IWordIndex, Externalizable {
 		wordCount = in.readInt();
 		restricetdEditDistanceMax = in.readInt();
 		maxlength = in.readInt();
-		int size = in.readInt();
+		final int size = in.readInt();
 
 		dictionary.clear();
 		for (int i = 0; i < size; i++) {
-			long key = in.readLong();
-			int itemLen = in.readInt();
+			final long key = in.readLong();
+			final int itemLen = in.readInt();
 
 			if (itemLen > 0) {
-				byte t = in.readByte();
-				if (itemLen == 1 && t == 2) {
-					String val = in.readUTF();
-					dictionary.put(key, val.intern());
+				final byte valueType = in.readByte();
+				if (itemLen == 1 && valueType == STRING_VAL) {
+					dictionary.put(key, in.readUTF().intern());
 				} else {
-					Object[] arr = new Object[itemLen];
-					int st = 0;
-					if (t == 1) {
-						st = 1;
+					final Object[] arr = new Object[itemLen];
+					int start = 0;
+					if(valueType == NULL_PLUS_STRING_ARR_VAL) {
+					    arr[0] = null;
+					    start = 1;
+					}else {
+					    assert valueType == STRING_ARR_VAL;
 					}
-					for (int k = st; k < itemLen; k++) {
-						String val = in.readUTF();
-						arr[k] = val.intern();
+					for (int k = start; k < itemLen; k++) {
+						arr[k] = in.readUTF().intern();
 					}
 					dictionary.put(key, arr);
 				}

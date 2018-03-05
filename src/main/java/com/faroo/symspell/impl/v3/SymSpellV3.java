@@ -92,6 +92,8 @@ public class SymSpellV3 implements ISymSpell {
      */
     @Override
     public List<SuggestItem> lookup(String inputStr, Verbosity verbosity, int editDistanceMax) {
+        // final int editDistanceMax = Math.min(this.dictionary.dist(inputStr), editDistanceMax1);
+        
         final int verbose = verbosity.verbose;
         // save some time
         if ((inputStr.length() - editDistanceMax) > dictionary.getMaxLength()) {
@@ -126,7 +128,7 @@ public class SymSpellV3 implements ISymSpell {
              * if canddate distance is already higher than suggestion distance, then there are no better suggestions to be expected
              */
             if (lengthDiff > editDistanceMax) {
-                continue;
+                break;
             }
 
             // save some time

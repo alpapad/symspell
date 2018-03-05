@@ -3,6 +3,8 @@ package com.faroo.test.perf.algo.sp7;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.faroo.symspell.Verbosity;
+import com.faroo.symspell.distance.DistanceAlgo;
 import com.faroo.symspell.impl.v3.SymSpellV3;
 import com.faroo.test.perf.WordSearch;
 
@@ -15,7 +17,7 @@ public class SymSpell7WordSearch implements WordSearch {
 
 	public SymSpell7WordSearch(int distance) {
 		this.distance = distance;
-		this.symSpell = new SymSpellV3(this.distance);
+		this.symSpell = new SymSpellV3(this.distance, Verbosity.All ,DistanceAlgo.OptimalStringAlignment);
 	}
 
 	public void finishIndexing() {

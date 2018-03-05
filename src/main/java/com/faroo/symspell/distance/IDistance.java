@@ -9,9 +9,14 @@ public interface IDistance {
     int distance(char[] ina, char[] inb, int maxDistance);
 
     default int distance(String left, char[] rightArr, int editDistanceMax) {
+        if(Math.abs(left.length() - rightArr.length) > 2* editDistanceMax) {
+            System.err.println("Really?");
+            return Integer.MAX_VALUE;
+        }
+
         // common prefixes and suffixes are ignored, because this speeds up the
         // Damerau-Levenshtein/Levenshtein Distance calculation without changing it.
-        char[] leftArr = StringToCharArr.arr(left);//.toCharArray();
+        char[] leftArr = StringToCharArr.arr(left);// .toCharArray();
         ;
         int ii = 0;
         int jj = 0;
@@ -24,14 +29,18 @@ public interface IDistance {
         }
 
         if ((ii > 0) || (jj > 0)) {
-            // FIXME: try to avoid array copy, adjust algos to use offset, len
-            return distance(//
-                    Arrays.copyOfRange(leftArr, ii, leftArr.length - jj), //
-                    Arrays.copyOfRange(rightArr, ii, rightArr.length - jj), //
-                    editDistanceMax);
+            return distance(leftArr, rightArr, ii, jj, editDistanceMax);
         } else {
             return distance(leftArr, rightArr, editDistanceMax);
         }
+    }
+
+    // FIXME: try to avoid array copy, adjust algos to use offset, len
+    default int distance(char[] leftArr, char[] rightArr, int startOffset, int endOffset, int maxDistance) {
+        return distance(//
+                Arrays.copyOfRange(leftArr, startOffset, leftArr.length - endOffset), //
+                Arrays.copyOfRange(rightArr, startOffset, rightArr.length - endOffset), //
+                maxDistance);
     }
 
     default int distance(String left, String right, int editDistanceMax) {
@@ -56,8 +65,8 @@ public interface IDistance {
 
         // common prefixes and suffixes are ignored, because this speeds up the
         // Damerau-Levenshtein/Levenshtein Distance calculation without changing it.
-        char[] leftArr = StringToCharArr.arr(left);//.toCharArray();
-        char[] rightArr = StringToCharArr.arr(right);//.toCharArray();
+        char[] leftArr = StringToCharArr.arr(left);// .toCharArray();
+        char[] rightArr = StringToCharArr.arr(right);// .toCharArray();
 
         ;
         int ii = 0;

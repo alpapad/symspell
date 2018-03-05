@@ -1,5 +1,6 @@
 package com.faroo.test.unit;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class TestLoad {
        
         CompactWordIndex dict2 = new CompactWordIndex(2,  Verbosity.All);
         
-        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("/tmp/object.data"))) {
+        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
             dict2.readExternal(is);
         }
         gc();
@@ -39,7 +40,7 @@ public class TestLoad {
         
         dict2 = new CompactWordIndex(2,  Verbosity.All);
         
-        try(ObjectInputStream is = new ObjectInputStream(new FileInputStream("/tmp/object.data"))) {
+        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
             dict2.readExternal(is);
         }
         gc();

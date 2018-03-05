@@ -31,7 +31,7 @@ public class TestStore {
         gc();
         gc();
         
-        CompactWordIndex dict = new CompactWordIndex(2,  Verbosity.All);
+        CompactWordIndex dict = new CompactWordIndex(3,  Verbosity.All);
         
         System.err.println("Index");
         long mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();

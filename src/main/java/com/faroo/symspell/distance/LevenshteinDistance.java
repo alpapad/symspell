@@ -33,7 +33,7 @@ public final class LevenshteinDistance implements IDistance {
     // org.apache.commons.lang.StringUtils#getLevenshteinDistance(String, String)
     // *****************************
     @Override
-    public int distance(char[] sa, char[] so, int maxDistance) {
+    public int distance(char[] left, char[] right, int maxDistance) {
 
         int n;
         int p[]; // 'previous' cost array, horizontally
@@ -48,8 +48,8 @@ public final class LevenshteinDistance implements IDistance {
          * Effectively, the difference between the two implementations is this one does not cause an out of memory condition when calculating the LD over two very large strings.
          */
 
-        n = sa.length;
-        int m = so.length; // length of right
+        n = left.length;
+        int m = right.length; // length of right
 
         // if one string is empty, the edit distance is necessarily the length
         // of the other
@@ -61,11 +61,11 @@ public final class LevenshteinDistance implements IDistance {
 
         if (n > m) {
             // swap the two strings to consume less memory
-            final char[] tmp = sa;
-            sa = so;
-            so = tmp;
+            final char[] tmp = left;
+            left = right;
+            right = tmp;
             n = m;
-            m = so.length;
+            m = right.length;
         }
 
         p = new int[n + 1];
@@ -93,11 +93,11 @@ public final class LevenshteinDistance implements IDistance {
         }
 
         for (j = 1; j <= m; j++) {
-            t_j = so[j - 1];
+            t_j = right[j - 1];
             d[0] = j;
 
             for (i = 1; i <= n; i++) {
-                cost = sa[i - 1] == t_j ? 0 : 1;
+                cost = left[i - 1] == t_j ? 0 : 1;
                 // minimum of cell to the left+1, to the top+1, diagonally left and up +cost
                 d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
             }
@@ -109,8 +109,5 @@ public final class LevenshteinDistance implements IDistance {
         }
 
         return p[n];
-        // // our last action in the above loop was to switch d and p, so p now
-        // // actually has the most recent cost counts
-        // return 1.0f - ((float) p[n] / Math.max(other.length(), sa.length));
     }
 }
