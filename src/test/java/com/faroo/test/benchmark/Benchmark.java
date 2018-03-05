@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.faroo.symspell.Verbosity;
 import com.faroo.symspell.impl.v3.SymSpellV3;
@@ -34,32 +36,56 @@ public class Benchmark {
             path + "/frequency_dictionary_en_30_000.txt", //
             path + "/frequency_dictionary_en_82_765.txt", //
             path + "/frequency_dictionary_en_500_000.txt" };
-
+  
     static String[] dictionaryName = { "30k", "82k", "500k" };
 
     static int[] dictionarySize = { 29159, 82765, 500000 };
 
     static String id = "Any-Latin; nfd; [:nonspacing mark:] remove; nfc";
     static Transliterator ts = Transliterator.getInstance(id);
-    static DecimalFormat df = new DecimalFormat("#####.##");
-    static DecimalFormat ft = new DecimalFormat("00000000.00");
-    static DecimalFormat pct = new DecimalFormat("0.00");
+    static DecimalFormat df = new DecimalFormat("0000000000.00");
+    static DecimalFormat ft = new DecimalFormat("0000000000.00");
+    static DecimalFormat pct = new DecimalFormat("000.00");
+    
+    static DecimalFormat iint = new DecimalFormat("000000000000");
+    
+    static Pattern pt = Pattern.compile("^([0]+).*");
+    static  String zToSpace(String in) {
+    	Matcher m = pt.matcher(in);
+    	if(m.matches()) {
+    		String pre = m.group(1); 
+    		StringBuilder sb = new StringBuilder();
+    		for(int i =0; i< pre.length(); i++) {
+    			sb.append(" ");
+    		}
+    		sb.append(in.substring(pre.length()));
+    		return sb.toString();
+    	} else {
+    		return in;
+    	}
+    }
     static {
         df.setRoundingMode(RoundingMode.CEILING);
         ft.setRoundingMode(RoundingMode.CEILING);
         pct.setRoundingMode(RoundingMode.CEILING);
+        iint.setRoundingMode(RoundingMode.CEILING);
+
     }
 
     static String PCT(double number) {
-        return (pct.format(number * 100) + "%");
+        return (zToSpace(pct.format(number * 100)) + "%");
     }
     
     static String MB(double number) {
-        return (df.format(number) + "Mb");
+        return (zToSpace(df.format(number)) + "Mb");
     }
     
     static String FT(double number) {
-        return ft.format(number);
+        return zToSpace(ft.format(number));
+    }
+    
+    static String INT(Number number) {
+        return zToSpace(iint.format(number));
     }
     
     static void gc() {
@@ -147,7 +173,8 @@ public class Benchmark {
 
                 totalLoadTime += stopWatch.elapsed().getSeconds();
                 totalMem += memDelta / 1024.0 / 1024.0;
-                System.out.println("Precalculation v3 " + stopWatch.elapsed().getSeconds() + "s " + MB(memDelta / 1024.0 / 1024.0) + " " + dict.getWordCount() + " words " + dict.getEntryCount()
+                System.out.println("Precalculation v3 " + INT(stopWatch.elapsed().getSeconds()) + "s " + MB(memDelta / 1024.0 / 1024.0) + " " + INT(dict.getWordCount()) 
+                + " words " + INT(dict.getEntryCount())
                         + " entries  MaxEditDistance=" + maxEditDistance + " dict=" + dictionaryName[i]);
 
                 // static dictionary
@@ -161,7 +188,8 @@ public class Benchmark {
                 memDelta = getTotalMemory() - memSize;
                 totalOrigMem += memDelta / 1024.0 / 1024.0;
 
-                System.out.println("Precalculation v6 " + stopWatch.elapsed().getSeconds() + "s " + MB(memDelta / 1024 / 1024.0) + " " + dictOrig.getWordCount() + " words " + dictOrig.getEntryCount()
+                System.out.println("Precalculation v6 " + INT(stopWatch.elapsed().getSeconds()) + "s " 
+                + MB(memDelta / 1024 / 1024.0) + " " + INT(dictOrig.getWordCount()) + " words " + INT(dictOrig.getEntryCount())
                         + " entries  MaxEditDistance=" + maxEditDistance + " dict=" + dictionaryName[i]);
 
                 // benchmark lookup result number and time
@@ -177,7 +205,7 @@ public class Benchmark {
                     totalLookupTime += stopWatch.stop().elapsed().toNanos();
                     gc1();
                     totalMatches += resultNumber;
-                    System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
+                    System.out.println("lookup v3 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
                     // static exact
                     stopWatch.reset().start();
                     for (int round = 0; round < repetitions; round++) {
@@ -186,7 +214,7 @@ public class Benchmark {
                     totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
                     totalOrigMatches += resultNumber;
                     gc1();
-                    System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
+                    System.out.println("lookup v6 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=exact");
                     System.out.println();
                     totalRepetitions += repetitions;
 
@@ -198,7 +226,7 @@ public class Benchmark {
                     totalLookupTime += stopWatch.stop().elapsed().toNanos();
                     gc1();
                     totalMatches += resultNumber;
-                    System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
+                    System.out.println("lookup v3 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
                     // static non-exact
                     stopWatch.reset().start();
                     for (int round = 0; round < repetitions; round++) {
@@ -207,7 +235,7 @@ public class Benchmark {
                     totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
                     gc1();
                     totalOrigMatches += resultNumber;
-                    System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
+                    System.out.println("lookup v6 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / repetitions) + "ns/op verbosity=" + verbosity + " query=non-exact");
                     System.out.println();
                     totalRepetitions += repetitions;
 
@@ -222,7 +250,7 @@ public class Benchmark {
                     totalMatches += resultNumber;
                     gc1();
                     
-                    System.out.println("lookup v3 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
+                    System.out.println("lookup v3 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
                     // static mix
                     stopWatch.reset().start();
                     resultNumber = 0;
@@ -233,32 +261,32 @@ public class Benchmark {
                     totalOrigLookupTime += stopWatch.stop().elapsed().toNanos();
                     totalOrigMatches += resultNumber;
                     gc1();
-                    System.out.println("lookup v6 " + resultNumber + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
+                    System.out.println("lookup v6 " + INT(resultNumber) + " results " + FT(stopWatch.elapsed().toNanos() / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
                     System.out.println();
                     totalRepetitions += query1k.size();
-                    System.out.println("lookup v3 acc: " + " ---> " + dict.acc.count()//
-                            + " sum:" + df.format(dict.acc.sum()) //
-                            + "  mean:" + df.format(dict.acc.mean())//
-                            + ", Stdev:" + df.format(dict.acc.sampleStandardDeviation()) //
-                            + ", var:" + df.format(dict.acc.sampleVariance()));
+                    System.out.println("lookup v3 acc: " + " ---> " + INT(dict.acc.count())//
+                            + " sum:" + FT(dict.acc.sum()) //
+                            + "  mean:" + FT(dict.acc.mean())//
+                            + ", Stdev:" + FT(dict.acc.sampleStandardDeviation()) //
+                            + ", var:" + FT(dict.acc.sampleVariance()));
 
-                    System.out.println("lookup v3 dur: " + " ---> " + dict.du.count()//
-                            + " sum:" + df.format(dict.du.sum() / 1000) //
-                            + "  mean:" + df.format(dict.du.mean())//
-                            + ", Stdev:" + df.format(dict.du.sampleStandardDeviation()) //
-                            + ", var:" + df.format(dict.du.sampleVariance()));
+                    System.out.println("lookup v3 dur: " + " ---> " + INT(dict.du.count())//
+                            + " sum:" + FT(dict.du.sum() / 1000) //
+                            + "  mean:" + FT(dict.du.mean())//
+                            + ", Stdev:" + FT(dict.du.sampleStandardDeviation()) //
+                            + ", var:" + FT(dict.du.sampleVariance()));
 
-                    System.out.println("lookup v6 acc: " + " ---> " + dictOrig.acc.count()//
-                            + " sum:" + df.format(dictOrig.acc.sum()) //
-                            + "  mean:" + df.format(dictOrig.acc.mean())//
-                            + ", Stdev:" + df.format(dictOrig.acc.sampleStandardDeviation()) //
-                            + ", var:" + df.format(dictOrig.acc.sampleVariance()));
+                    System.out.println("lookup v6 acc: " + " ---> " + INT(dictOrig.acc.count())//
+                            + " sum:" + FT(dictOrig.acc.sum()) //
+                            + "  mean:" + FT(dictOrig.acc.mean())//
+                            + ", Stdev:" + FT(dictOrig.acc.sampleStandardDeviation()) //
+                            + ", var:" + FT(dictOrig.acc.sampleVariance()));
 
-                    System.out.println("lookup v3 dur: " + " ---> " + dictOrig.du.count()//
-                            + " sum:" + df.format(dictOrig.du.sum() / 1000) //
-                            + "  mean:" + df.format(dictOrig.du.mean())//
-                            + ", Stdev:" + df.format(dictOrig.du.sampleStandardDeviation()) //
-                            + ", var:" + df.format(dictOrig.du.sampleVariance()));
+                    System.out.println("lookup v3 dur: " + " ---> " + INT(dictOrig.du.count())//
+                            + " sum:" + FT(dictOrig.du.sum() / 1000) //
+                            + "  mean:" + FT(dictOrig.du.mean())//
+                            + ", Stdev:" + FT(dictOrig.du.sampleStandardDeviation()) //
+                            + ", var:" + FT(dictOrig.du.sampleVariance()));
                     System.out.println();
                 }
                 System.out.println();

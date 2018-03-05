@@ -40,8 +40,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.math.StatsAccumulator;
 
 import gnu.trove.impl.Constants;
-import gnu.trove.map.TLongObjectMap;
-import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 
