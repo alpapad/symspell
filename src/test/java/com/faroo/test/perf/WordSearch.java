@@ -20,7 +20,7 @@ public interface WordSearch {
 		return this.findSimilarWords(searchQuery);
 	}
 	static int dist(int l, double k) {
-		return 999;//(int)Math.round((1d-k) *l);
+		return (int)Math.round((1d-k) *l);
 	}
 	
 	default int dist(String in) {

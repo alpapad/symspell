@@ -24,7 +24,7 @@ import gnu.trove.procedure.TLongObjectProcedure;
  * derived from them. A term might be both word and delete from another word at
  * the same time.
  */
-public class HashKeySimpleDictionary implements IDictionary, Externalizable {
+public class CompactWordIndex implements IWordIndex, Externalizable {
 
 	/**
 	 * HashMapDictionary that contains both the original words and the deletes
@@ -49,16 +49,14 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 
 	public int maxlength = 0;// maximum tempDictionary term length
 
-	private final ThreadLocal<StrIterable> it = new ThreadLocal<>();
+	private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
-	public HashKeySimpleDictionary(int editDistanceMax, Verbosity verbosity) {
+	public CompactWordIndex(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
 	}
 
-	static int dist(int l, double k) {
-		return (int) Math.round((1d - k) * l);
-	}
+
 
 	private static final Object[] WORD = new Object[] { null };
 
@@ -120,7 +118,7 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 		if (newKey) {
 			wordCount++;
 			result = true;
-			final int maxEditDist = this.restricetdEditDistanceMax;
+			final int maxEditDist = this.restricetdEditDistanceMax;// Math.min(dist(key), this.restricetdEditDistanceMax);
 			// create deletes
 			for (String delete : edits(key, maxEditDist)) {
 				final long hd = hash(delete);
@@ -177,10 +175,10 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 	}
 
 	@Override
-	public IDictionaryItems getEntries(String candidate, IDictionaryItems item) {
+	public IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
 		Object dictionaryEntry = this.dictionary.get(hash(candidate));
 		if (dictionaryEntry != null) {
-			return StrIterable.class.cast(item).init(dictionaryEntry);
+			return CompactMatchesIterator.class.cast(item).init(dictionaryEntry);
 		}
 		return null;
 	}
@@ -229,61 +227,56 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 	}
 
 	@Override
-	public IDictionaryItems getIterable() {
-		StrIterable ter = it.get();
+	public IMatchingItemsIterator getIterable() {
+		CompactMatchesIterator ter = it.get();
 		if (ter == null) {
-			ter = new StrIterable();
+			ter = new CompactMatchesIterator();
 			it.set(ter);
 		}
 		return ter;
 	}
 
+	private final static byte STRING_VAL = 2;
+	private final static byte NULL_PLUS_STRING_ARR_VAL = 1;
+	private final static byte STRING_ARR_VAL = 0;
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeByte(0);
 		out.writeInt(wordCount);
-		System.err.println("WC:" + wordCount);
-
 		out.writeInt(restricetdEditDistanceMax);
-		System.err.println("DIST:" + restricetdEditDistanceMax);
-		System.err.println("MX:" + maxlength);
 		out.writeInt(maxlength);
-		dictionary.compact();
-		int size = dictionary.size();
-		System.err.println("SIZE:" + size);
-
-		out.writeInt(size);
-		dictionary.forEachEntry(new TLongObjectProcedure<Object>() {
+		this.dictionary.compact();
+		out.writeInt(dictionary.size());
+		this.dictionary.forEachEntry(new TLongObjectProcedure<Object>() {
 			@Override
-			public boolean execute(long a, Object b) {
+			public boolean execute(long key, Object value) {
 				try {
-					if (b instanceof String) {
-						out.writeLong(a); // key
+					if (value instanceof String) {
+						out.writeLong(key); // key
 						out.writeInt(1); // len
-						out.writeByte(2); // type = string
-						out.writeUTF(String.class.cast(b)); // value
+						out.writeByte(STRING_VAL); // type = string
+						out.writeUTF(String.class.cast(value)); // value
 					} else {
-						Object[] obs = Object[].class.cast(b);
-						if (obs.length > 0) {
-							out.writeLong(a); // key
-							out.writeInt(obs.length); // len
-							int st = 0;
-							if (obs[0] == null) {
-								out.writeByte(1); // type = null + arr string
-								st = 1;
+						final Object[] values = Object[].class.cast(value);
+						if (values.length > 0) {
+							out.writeLong(key); // key
+							out.writeInt(values.length); // len
+							int start = 0;
+							if (values[0] == null) {
+								out.writeByte(NULL_PLUS_STRING_ARR_VAL); // type = null + arr string
+								start = 1;
 							} else {
-								out.writeByte(0); // type = arr string
+								out.writeByte(STRING_ARR_VAL); // type = arr string
 							}
 
-							for (int i = st; i < obs.length; i++) {
-								String ss = String.class.cast(obs[i]);
+							for (int i = start; i < values.length; i++) {
+								String ss = String.class.cast(values[i]);
 								out.writeUTF(ss);
 							}
 						}
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				    throw new RuntimeException(e);
 				}
 				return true;
 			}
@@ -292,37 +285,33 @@ public class HashKeySimpleDictionary implements IDictionary, Externalizable {
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
 		// VERSION
 		in.readByte();
 		wordCount = in.readInt();
-		System.err.println("WC:" + wordCount);
 		restricetdEditDistanceMax = in.readInt();
-		System.err.println("DIST:" + restricetdEditDistanceMax);
 		maxlength = in.readInt();
-		System.err.println("MX:" + maxlength);
-		int size = in.readInt();
-		System.err.println("SIZE:" + size);
+		final int size = in.readInt();
 
 		dictionary.clear();
 		for (int i = 0; i < size; i++) {
-			long key = in.readLong();
-			int itemLen = in.readInt();
+			final long key = in.readLong();
+			final int itemLen = in.readInt();
 
 			if (itemLen > 0) {
-				byte t = in.readByte();
-				if (itemLen == 1 && t == 2) {
-					String val = in.readUTF();
-					dictionary.put(key, val.intern());
+				final byte valueType = in.readByte();
+				if (itemLen == 1 && valueType == STRING_VAL) {
+					dictionary.put(key, in.readUTF().intern());
 				} else {
-					Object[] arr = new Object[itemLen];
-					int st = 0;
-					if (t == 1) {
-						st = 1;
+					final Object[] arr = new Object[itemLen];
+					int start = 0;
+					if(valueType == NULL_PLUS_STRING_ARR_VAL) {
+					    arr[0] = null;
+					    start = 1;
+					}else {
+					    assert valueType == STRING_ARR_VAL;
 					}
-					for (int k = st; k < itemLen; k++) {
-						String val = in.readUTF();
-						arr[k] = val.intern();
+					for (int k = start; k < itemLen; k++) {
+						arr[k] = in.readUTF().intern();
 					}
 					dictionary.put(key, arr);
 				}

@@ -1,10 +1,13 @@
 package com.faroo.symspell.distance;
 
 public enum DistanceAlgo {
+    Fastenshtein,
     DamerauLevenshtein, //
     Levenshtein, //
     LimitedLevenshtein, //
-    OptimalStringAlignment, Sift4, JaroWinkler;
+    OptimalStringAlignment,//
+    Sift4, //
+    JaroWinkler;
 
     public IDistance instance() {
         switch (this) {
@@ -20,6 +23,8 @@ public enum DistanceAlgo {
             return new Sift4();
         case JaroWinkler:
             return new JaroWinklerDistance();
+        case Fastenshtein:
+            return new FastenshteinLevDistance();
         default:
             throw new UnsupportedOperationException();
         }

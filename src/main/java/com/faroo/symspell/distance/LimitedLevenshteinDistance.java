@@ -8,7 +8,7 @@ public class LimitedLevenshteinDistance implements IDistance {
 
     @Override
     public int distance(String left, String right, final int threshold) { // NOPMD
-        return this.distance(StringToCharArr.arr(left),StringToCharArr.arr(right), threshold);
+        return this.distance(StringToCharArr.arr(left), StringToCharArr.arr(right), threshold);
     }
 
     /**
@@ -105,8 +105,7 @@ public class LimitedLevenshteinDistance implements IDistance {
             final int min = Math.max(1, j - threshold);
             final int max = j > (Integer.MAX_VALUE - threshold) ? n : Math.min(n, j + threshold);
 
-            // the stripe may lead off of the table if s and t are of different
-            // sizes
+            // the stripe may lead off of the table if s and t are of different sizes
             if (min > max) {
                 System.err.println(min + "," + max);
                 return Integer.MAX_VALUE;
@@ -123,8 +122,7 @@ public class LimitedLevenshteinDistance implements IDistance {
                     // diagonally left and up
                     d[i] = p[i - 1];
                 } else {
-                    // 1 + minimum of cell to the left, to the top, diagonally
-                    // left and up
+                    // 1 + minimum of cell to the left, to the top, diagonally left and up
                     d[i] = 1 + Math.min(Math.min(d[i - 1], p[i]), p[i - 1]);
                 }
             }
@@ -135,9 +133,7 @@ public class LimitedLevenshteinDistance implements IDistance {
             d = tempD;
         }
 
-        // if p[n] is greater than the threshold, there's no guarantee on it
-        // being the correct
-        // distance
+        // if p[n] is greater than the threshold, there's no guarantee on it being the correct distance
         if (p[n] <= threshold) {
             return p[n];
         }

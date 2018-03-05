@@ -72,7 +72,7 @@ public class SymSpellV6 implements ISymSpell {
     /*
      * HashMapDictionary of unique words that are below the count threshold for being considered correct spellings.
      */
-    private TObjectLongHashMap<String> belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
+    private TObjectLongHashMap<String> belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, 1f, NO_ENTRY);
 
     /* Maximum edit distance for dictionary precalculation. */
     public int getMaxDictionaryEditDistance() {
@@ -350,7 +350,7 @@ public class SymSpellV6 implements ISymSpell {
      * This can be used to reduce memory consumption after populating the dictionary from a corpus using CreateDictionary.
      */
     public void purgeBelowThresholdWords() {
-        belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, NO_ENTRY);
+        belowThresholdWords = new TObjectLongHashMap<>(Constants.DEFAULT_CAPACITY, 1f, NO_ENTRY);
     }
 
     /**

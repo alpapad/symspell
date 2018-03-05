@@ -72,23 +72,21 @@ public class OptimalStringAlignmentDistance implements IDistance {
     @Override
     public int distance(char[] ina, char[] inb, int maxDistance) {
 
-        if ((ina == null) || (ina.length == 0)) {
-            if (inb != null) {
-                return inb.length;
-            }
-            return 0;
-        }
-        if ((inb == null) || (inb.length == 0)) {
-            return ina.length;
-        }
+//        if ((ina == null) || (ina.length == 0)) {
+//            if (inb != null) {
+//                return inb.length;
+//            }
+//            return 0;
+//        }
+//        if ((inb == null) || (inb.length == 0)) {
+//            return ina.length;
+//        }
 
-        int[] v0 = new int[ina.length];
-        int[] v2 = new int[ina.length]; // stores one level further back (offset by +1 position)
+//        int[] v0 = new int[ina.length];
+//        int[] v2 = new int[ina.length]; // stores one level further back (offset by +1 position)
 
-        // if strings of different lengths, ensure shorter string is in string1. This
-        // can result in a little
-        // faster speed by spending more time spinning just the inner loop during the
-        // main processing.
+        // if strings of different lengths, ensure shorter string is in string1. This can result in a little
+        // faster speed by spending more time spinning just the inner loop during the main processing.
         char[] string1;
         char[] string2 = inb;
         if (ina.length > string2.length) {
@@ -107,8 +105,9 @@ public class OptimalStringAlignmentDistance implements IDistance {
         }
 
         int start = 0;
-        if ((string1[0] == string2[0]) || (sLen == 0)) { // if there'string1 a shared prefix, or all
-                                                         // string1 matches string2'string1 suffix
+
+        // if there'string1 a shared prefix, or all string1 matches string2'string1 suffix
+        if ((string1[0] == string2[0]) || (sLen == 0)) { 
             // prefix common to both strings can be ignored
             while ((start < sLen) && (string1[start] == string2[start])) {
                 start++;
@@ -117,8 +116,7 @@ public class OptimalStringAlignmentDistance implements IDistance {
             tLen -= start;
 
             // if all of shorter string matches prefix and/or suffix of longer string, then
-            // edit distance is just the delete of additional characters present in longer
-            // string
+            // edit distance is just the delete of additional characters present in longer string
             if (sLen == 0) {
                 return tLen;
             }
@@ -133,12 +131,15 @@ public class OptimalStringAlignmentDistance implements IDistance {
             return -1;
         }
 
-        if (tLen > v0.length) {
-            v0 = new int[tLen];
-            v2 = new int[tLen];
-        } else {
-            Arrays.fill(v2, 0, tLen, 0);
-        }
+        int[] v0 = new int[tLen];
+        int[] v2 = new int[tLen]; // stores one level further back (offset by +1 position)
+        
+//        if (tLen > v0.length) {
+//            v0 = new int[tLen];
+//            v2 = new int[tLen];
+//        } else {
+//            Arrays.fill(v2, 0, tLen, 0);
+//        }
         int j;
         for (j = 0; j < maxDistance; j++) {
             v0[j] = j + 1;
@@ -160,12 +161,10 @@ public class OptimalStringAlignmentDistance implements IDistance {
             int left = i;
             current = left + 1;
             int nextTransCost = 0;
-            // no need to look beyond window of lower right diagonal - maxDistance cells
-            // (lower right diag is i - lenDiff)
+            // no need to look beyond window of lower right diagonal - maxDistance cells (lower right diag is i - lenDiff)
             // and the upper left diagonal + maxDistance cells (upper left is i)
             jStart += (i > jStartOffset) ? 1 : 0;
             jEnd += (jEnd < tLen) ? 1 : 0;
-            // jEnd= Math.min(jEnd, string2.length());
 
             for (j = jStart; j < jEnd; j++) {
                 int above = current;

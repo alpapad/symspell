@@ -14,9 +14,9 @@ import java.util.List;
 import com.faroo.symspell.Verbosity;
 
 /**
- * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
+ * IWordIndex that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
  */
-public class HashMapDictionary implements IDictionary {
+public class HashMapWordIndex implements IWordIndex {
     private HashMap<String, Object> tempDictionary = new HashMap<>();
 
     /**
@@ -42,7 +42,7 @@ public class HashMapDictionary implements IDictionary {
         public int count = 0;
     }
 
-    public HashMapDictionary(int editDistanceMax, Verbosity verbosity) {
+    public HashMapWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
         this.verbose = verbosity.verbose;
@@ -204,7 +204,7 @@ public class HashMapDictionary implements IDictionary {
     }
 
     @Override
-    public IDictionaryItems getIterable() {
+    public IMatchingItemsIterator getIterable() {
         // TODO Auto-generated method stub
         return null;
     }

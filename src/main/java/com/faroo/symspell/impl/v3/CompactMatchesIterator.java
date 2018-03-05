@@ -2,7 +2,7 @@ package com.faroo.symspell.impl.v3;
 
 import java.util.Iterator;
 
-class StrIterable implements IDictionaryItems {
+class CompactMatchesIterator implements IMatchingItemsIterator {
 
     private Object[] items;
     private boolean word;
@@ -20,10 +20,10 @@ class StrIterable implements IDictionaryItems {
         }
     };
 
-    public StrIterable() {
+    public CompactMatchesIterator() {
     }
 
-    public IDictionaryItems init(Object items) {
+    public IMatchingItemsIterator init(Object items) {
         if (items instanceof String) {
             this.word = false;
             this.start = 0;
