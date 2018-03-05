@@ -150,9 +150,6 @@ public class Benchmark {
         totalLoadTime = totalMem = totalLookupTime = totalOrigLoadTime = totalOrigMem = totalOrigLookupTime = 0;
         double totalRepetitions = 0;
 
-        DecimalFormat df = new DecimalFormat("#####.##");
-        df.setRoundingMode(RoundingMode.CEILING);
-
         Stopwatch stopWatch = Stopwatch.createStarted();
         for (int maxEditDistance = 2; maxEditDistance < 3; maxEditDistance++) {
 
