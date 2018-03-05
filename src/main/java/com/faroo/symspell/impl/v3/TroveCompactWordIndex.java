@@ -24,7 +24,7 @@ import gnu.trove.procedure.TLongObjectProcedure;
  * derived from them. A term might be both word and delete from another word at
  * the same time.
  */
-public class CompactWordIndex implements IWordIndex, Externalizable {
+public class TroveCompactWordIndex implements IWordIndex, Externalizable {
 
 	/**
 	 * HashMapDictionary that contains both the original words and the deletes
@@ -51,7 +51,7 @@ public class CompactWordIndex implements IWordIndex, Externalizable {
 
 	private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
-	public CompactWordIndex(int editDistanceMax, Verbosity verbosity) {
+	public TroveCompactWordIndex(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
 	}

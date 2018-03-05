@@ -52,19 +52,19 @@ public class SymSpellV3 implements ISymSpell {
     private Stopwatch stopWatch = Stopwatch.createUnstarted();
 
     public SymSpellV3() {
-        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CompactWordIndex(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
+        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CustomCompactWordIndex(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax) {
-        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CompactWordIndex(editDistanceMax, DEFAULT_VERBOSITY));
+        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CustomCompactWordIndex(editDistanceMax, DEFAULT_VERBOSITY));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity) {
-        this(editDistanceMax, verbosity, DEFAULT_ALGO, new CompactWordIndex(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, DEFAULT_ALGO, new CustomCompactWordIndex(editDistanceMax, verbosity));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo) {
-        this(editDistanceMax, verbosity, algo, new CompactWordIndex(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, algo, new CustomCompactWordIndex(editDistanceMax, verbosity));
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IWordIndex dictionary) {

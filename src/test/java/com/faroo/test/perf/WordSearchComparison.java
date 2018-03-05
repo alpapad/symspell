@@ -26,16 +26,6 @@ import com.faroo.test.perf.algo.sp7.SymSpell7WordSearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.StatsAccumulator;
 
-//import de.cxp.predict.common.Eudex;
-//import de.cxp.spellcorrect.damerau.DamerauWordSearch;
-//import de.cxp.spellcorrect.elasticsearch.ElasticsearchWordSearch;
-//import de.cxp.spellcorrect.fastfuzzystringmatcher.BkWordSearch;
-//import de.cxp.spellcorrect.levenshtein.LevenshteinWordSearch;
-//import de.cxp.spellcorrect.lucene.LuceneWordSearch;
-//import de.cxp.spellcorrect.predict.PreDictFactory;
-//import de.cxp.spellcorrect.symspell.v5.SymSpellWordSearch;
-//import de.cxp.spellcorrect.symspell.v6.SymSpellWordSearch6;
-//import de.cxp.spellcorrect.symspell.v7.SymSpellWordSearch7;
 
 public class WordSearchComparison {
 
@@ -73,6 +63,7 @@ public class WordSearchComparison {
 	// 2 695 724
 	public static void main(String[] args) throws IOException, InterruptedException {
 		WordSearch[] wordCorrectImplementations = { //
+		        new SymSpell7WordSearch(2), //
 				// new BkWordSearch(2), //
 				//new SymSpell3WordSearch(2), //
 				//new SymSpell3WordSearch(2), //

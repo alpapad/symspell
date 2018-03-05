@@ -8,10 +8,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.faroo.symspell.Verbosity;
 import com.faroo.symspell.distance.DistanceAlgo;
-import com.faroo.symspell.impl.v3.CompactWordIndex;
+import com.faroo.symspell.impl.v3.TroveCompactWordIndex;
 import com.faroo.symspell.impl.v3.SymSpellV3;
 
 public class TestStore {
@@ -31,7 +33,7 @@ public class TestStore {
         gc();
         gc();
         
-        CompactWordIndex dict = new CompactWordIndex(3,  Verbosity.All);
+        TroveCompactWordIndex dict = new TroveCompactWordIndex(3,  Verbosity.All);
         
         System.err.println("Index");
         long mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
@@ -48,7 +50,7 @@ public class TestStore {
         System.err.println("Mem:" + mem2/1024/1024);
         
         System.err.println("Save");
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("/tmp/object.data")))) {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("/tmp/object.data"),16*1024)))) {
             dict.writeExternal(objectOutputStream);
         }
         System.err.println("Done saving");
@@ -59,9 +61,9 @@ public class TestStore {
         gc();
         System.err.println("Load");
         mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        CompactWordIndex dict2 = new CompactWordIndex(2,  Verbosity.All);
+        TroveCompactWordIndex dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
         
-        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
+        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream("/tmp/object.data"))))) {
             dict2.readExternal(is);
         }
         System.err.println("Done Loading");
@@ -72,11 +74,11 @@ public class TestStore {
         System.err.println("Mem:" + mem2/1024/1024 + " --- " + mem3/1024/1024);
         mem = mem3;
         
-        dict2 = new CompactWordIndex(2,  Verbosity.All);
+        dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
         gc();
         gc();
         System.err.println("Load");
-        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
+        try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream("/tmp/object.data"))))) {
             dict2.readExternal(is);
         }
         System.err.println("Done Loading");

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import com.faroo.symspell.Verbosity;
-import com.faroo.symspell.impl.v3.CompactWordIndex;
+import com.faroo.symspell.impl.v3.TroveCompactWordIndex;
 
 public class TestLoad {
     static void gc() {
@@ -27,7 +27,7 @@ public class TestLoad {
         long mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         
        
-        CompactWordIndex dict2 = new CompactWordIndex(2,  Verbosity.All);
+        TroveCompactWordIndex dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
         
         try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
             dict2.readExternal(is);
@@ -38,7 +38,7 @@ public class TestLoad {
         
         System.err.println(mem3/1024/1024);
         
-        dict2 = new CompactWordIndex(2,  Verbosity.All);
+        dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
         
         try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new FileInputStream("/tmp/object.data")))) {
             dict2.readExternal(is);
