@@ -162,7 +162,7 @@ public class FilterEngine {
             if (entry == null) {
                 entry = new FilterIndexEntry();
                 nameToId.put(name, entry);
-                matcher.createDictionaryEntry(name);
+                matcher.addWord(name);
             }
             entry.addId(xid);
         } catch (Exception e) {

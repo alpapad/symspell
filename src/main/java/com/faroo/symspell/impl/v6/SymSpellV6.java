@@ -40,8 +40,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.math.StatsAccumulator;
 
 import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 public class SymSpellV6 implements ISymSpell {
 
@@ -64,11 +65,11 @@ public class SymSpellV6 implements ISymSpell {
     /*
      * HashMapDictionary that contains a mapping of lists of suggested correction words to the hashCodes of the original words and the deletes derived from them. Collisions of hashCodes is tolerated, because suggestions are ultimately verified via an edit distance function. A list of suggestions might have a single suggestion, or multiple suggestions.
      */
-    private TLongObjectHashMap<String[]> deletes;
+    private Long2ObjectOpenHashMap<String[]> deletes;
     /*
      * HashMapDictionary of unique correct spelling words, and the frequency count for each word.
      */
-    private TObjectLongHashMap<String> words;
+    private Object2LongOpenHashMap<String> words;
     /*
      * HashMapDictionary of unique words that are below the count threshold for being considered correct spellings.
      */
@@ -159,7 +160,8 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         this.initialCapacity = initialCapacity;
-        this.words = new TObjectLongHashMap<>(initialCapacity, 1f, NO_ENTRY);
+        this.words = new Object2LongOpenHashMap<>(initialCapacity, 1f);//, NO_ENTRY);
+        this.words.defaultReturnValue(NO_ENTRY);
         this.maxDictionaryEditDistance = maxDictionaryEditDistance;
         this.prefixLength = prefixLength;
         this.countThreshold = countThreshold;
@@ -207,10 +209,10 @@ public class SymSpellV6 implements ISymSpell {
                 belowThresholdWords.put(key, count);
                 return false;
             }
-        } else if ((countPrevious = words.get(key)) != words.getNoEntryValue()) {
+        } else if ((countPrevious = words.getLong(key)) != words.defaultReturnValue()) {
             // just update count if it's an already added above threshold word
             count = ((Long.MAX_VALUE - countPrevious) > count) ? countPrevious + count : Long.MAX_VALUE;
-            words.put(key, count);
+            words.put(key, count.longValue());
             return false;
         } else if (count < getCountThreshold()) {
             // new or existing below threshold word
@@ -219,7 +221,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         // what we have at this point is a new, above threshold word
-        words.put(key, count);
+        words.put(key, count.longValue());
 
         // edits/suggestions are created only once, no matter how often word occurs
         // edits/suggestions are created only as soon as the word occurs in the corpus,
@@ -238,7 +240,7 @@ public class SymSpellV6 implements ISymSpell {
             }
         } else {
             if (deletes == null) {
-                this.deletes = new TLongObjectHashMap<>(initialCapacity,1f); // initialisierung
+                this.deletes = new Long2ObjectOpenHashMap<>(initialCapacity,1f); // initialisierung
             }
             for (String delete : edits) {
                 long deleteHash = getStringHash(delete);
@@ -297,7 +299,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
+            this.deletes = new Long2ObjectOpenHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -330,7 +332,7 @@ public class SymSpellV6 implements ISymSpell {
         }
 
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
+            this.deletes = new Long2ObjectOpenHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -338,7 +340,7 @@ public class SymSpellV6 implements ISymSpell {
 
     public boolean commit(SuggestionStage staging) {
         if (this.deletes == null) {
-            this.deletes = new TLongObjectHashMap<>(staging.getDeleteCount(), 1f);
+            this.deletes = new Long2ObjectOpenHashMap<>(staging.getDeleteCount(), 1f);
         }
         commitStaged(staging);
         return true;
@@ -363,9 +365,9 @@ public class SymSpellV6 implements ISymSpell {
      */
     private void commitStaged(SuggestionStage staging) {
         staging.commitTo(deletes);
-        deletes.compact();
+        deletes.trim();
         belowThresholdWords.compact();
-        words.compact();
+        words.trim();
     }
 
     /**
@@ -429,7 +431,7 @@ public class SymSpellV6 implements ISymSpell {
         final Set<String> consideredSuggestions = new HashSet<>();
 
         // quick look for exact match
-        long suggestionCount = words.get(input);
+        long suggestionCount = words.getLong(input);
         if (suggestionCount != NO_ENTRY) {
             suggestions.add(new SuggestItem(input, 0, suggestionCount));
             // early exit - return exact match, unless caller wants all matches
@@ -574,7 +576,7 @@ public class SymSpellV6 implements ISymSpell {
                     // do not process higher distances than those already found, if verbose<All
                     // (note: maxEditDistance2 will always equal maxEditDistance when Verbosity.All)
                     if (distance <= maxEditDistance2) {
-                        suggestionCount = words.get(suggestion);
+                        suggestionCount = words.getLong(suggestion);
                         SuggestItem si = new SuggestItem(suggestion, distance, suggestionCount);
                         if (suggestions.size() > 0) {
                             switch (verbosity) {

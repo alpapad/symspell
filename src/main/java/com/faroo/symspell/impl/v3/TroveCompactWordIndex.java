@@ -51,9 +51,12 @@ public class TroveCompactWordIndex implements IWordIndex, Externalizable {
 
 	private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
+	private final Verbosity verbosity;
+	
 	public TroveCompactWordIndex(int editDistanceMax, Verbosity verbosity) {
 		super();
 		this.restricetdEditDistanceMax = editDistanceMax;
+		this.verbosity = verbosity;
 	}
 
 
@@ -72,7 +75,7 @@ public class TroveCompactWordIndex implements IWordIndex, Externalizable {
 	 * @return
 	 */
 	@Override
-	public boolean createDictionaryEntry(String key) {
+	public boolean addWord(String key, long count) {
 		key = key.intern();
 		boolean result = false;
 		final long kh = hash(key);
@@ -170,11 +173,11 @@ public class TroveCompactWordIndex implements IWordIndex, Externalizable {
 	}
 
 	@Override
-	public DictionaryItem getEntry(String candidate) {
-		return null;
-	}
+	public Verbosity getVerbosity() {
+        return verbosity;
+    }
 
-	@Override
+    @Override
 	public IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
 		Object dictionaryEntry = this.dictionary.get(hash(candidate));
 		if (dictionaryEntry != null) {
@@ -197,7 +200,12 @@ public class TroveCompactWordIndex implements IWordIndex, Externalizable {
 	public int getEntryCount() {
 		return dictionary.size();
 	}
-
+    
+	@Override
+    public int getDistance() {
+        return restricetdEditDistanceMax;
+    }
+    
 	private static boolean contains(Object value, Object[] array) {
 		if (array == null || array.length == 0) {
 			return false;

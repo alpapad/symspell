@@ -44,10 +44,13 @@ public class KolobokeCompactWordIndex implements IWordIndex, Externalizable {
 
     private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
+    private final Verbosity verbosity;
+
     public KolobokeCompactWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
         this.dictionary = HashLongObjMaps.getDefaultFactory().withHashConfig(HashConfig.getDefault()).newMutableMap(100_000);
+        this.verbosity = verbosity;
     }
 
     private static final Object[] WORD = new Object[] { null };
@@ -61,7 +64,7 @@ public class KolobokeCompactWordIndex implements IWordIndex, Externalizable {
      * @return
      */
     @Override
-    public boolean createDictionaryEntry(String key) {
+    public boolean addWord(String key, long count) {
         key = key.intern();
         boolean result = false;
         final long kh = hash(key);
@@ -156,11 +159,6 @@ public class KolobokeCompactWordIndex implements IWordIndex, Externalizable {
     }
 
     @Override
-    public DictionaryItem getEntry(String candidate) {
-        return null;
-    }
-
-    @Override
     public IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
         Object dictionaryEntry = this.dictionary.get(hash(candidate));
         if (dictionaryEntry != null) {
@@ -183,6 +181,16 @@ public class KolobokeCompactWordIndex implements IWordIndex, Externalizable {
     @Override
     public int getEntryCount() {
         return dictionary.size();
+    }
+
+    @Override
+    public int getDistance() {
+        return restricetdEditDistanceMax;
+    }
+
+    @Override
+    public Verbosity getVerbosity() {
+        return verbosity;
     }
 
     private static boolean contains(Object value, Object[] array) {
@@ -309,4 +317,5 @@ public class KolobokeCompactWordIndex implements IWordIndex, Externalizable {
         dictionary.shrink();
         assert size == dictionary.size();
     }
+
 }

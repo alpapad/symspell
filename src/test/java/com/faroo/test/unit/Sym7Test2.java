@@ -23,7 +23,7 @@ public class Sym7Test2 {
 		System.err.println("Indexing for distance " + 2);
 		SymSpellV3 sp = new SymSpellV3(3,Verbosity.All,DistanceAlgo.OptimalStringAlignment);
 		for (String w : data.loadCorpus()) {
-			sp.createDictionaryEntry(w.toLowerCase());
+			sp.addWord(w.toLowerCase());
 		}
 		sp.commit();
 		

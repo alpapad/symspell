@@ -7,6 +7,9 @@
  */
 package com.faroo.symspell.impl.v3;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +45,12 @@ public class HashMapWordIndex implements IWordIndex {
         public int count = 0;
     }
 
+    private final Verbosity verbosity;
+
     public HashMapWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
+        this.verbosity = verbosity;
         this.verbose = verbosity.verbose;
     }
 
@@ -61,7 +67,7 @@ public class HashMapWordIndex implements IWordIndex {
      * @return
      */
     @Override
-    public boolean createDictionaryEntry(String key) {
+    public boolean addWord(String key, long count) {
         boolean result = false;
         Node value = null;
         Object valueo = tempDictionary.get(key);
@@ -158,7 +164,16 @@ public class HashMapWordIndex implements IWordIndex {
     }
 
     @Override
-    public DictionaryItem getEntry(String candidate) {
+    public int getDistance() {
+        return restricetdEditDistanceMax;
+    }
+
+    @Override
+    public Verbosity getVerbosity() {
+        return verbosity;
+    }
+
+    private DictionaryItem getEntry(String candidate) {
         // read candidate entry from tempDictionary
         Object dictionaryEntry = this.dictionary.get(candidate);
 
@@ -174,6 +189,15 @@ public class HashMapWordIndex implements IWordIndex {
         return null;
     }
 
+    @Override
+    public IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
+        DictionaryItem itm = getEntry(candidate);
+        if (itm != null) {
+            return new DictionaryItemIterator(itm);
+        }
+        return null;
+    }
+    
     @Override
     public void commit() {
         dictionary = new HashMap<>();
@@ -207,5 +231,15 @@ public class HashMapWordIndex implements IWordIndex {
     public IMatchingItemsIterator getIterable() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        throw new IOException("Not supported!");
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        throw new IOException("Not supported!");
     }
 }

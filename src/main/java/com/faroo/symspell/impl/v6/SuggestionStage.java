@@ -19,17 +19,19 @@ package com.faroo.symspell.impl.v6;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.faroo.symspell.ISymSpellIndex;
 
-import gnu.trove.map.TLongObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
  * An intentionally opacque class used to temporarily stage dictionary data during the adding of many words. By staging the data during the building of the dictionary data, significant savings of time can be achieved, as well as a reduction in final memory usage.
  *
  */
-public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
+public class SuggestionStage implements ISymSpellIndex<SymSpellV6> {
 
     private static class Node {
         public String suggestion;
@@ -86,6 +88,12 @@ public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
     private HashMap<Long, Entry> deletes;
     private ChunkArray<Node> nodes;
 
+    private long compactMask;
+    private int maxDictionaryEditDistance;
+    private int prefixLength; // prefix length 5..7
+
+    private int maxLength; // maximum dictionary term length
+
     /**
      * Create a new instance of SuggestionStage.
      * 
@@ -119,6 +127,48 @@ public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
     }
 
     /**
+     *
+     * @param key
+     * @return
+     */
+    private Set<String> editsPrefix(String key) {
+        Set<String> hashSet = new LinkedHashSet<>();
+        if (key.length() <= maxDictionaryEditDistance) {
+            hashSet.add("");
+        }
+        if (key.length() > prefixLength) {
+            key = key.substring(0, prefixLength);
+        }
+        hashSet.add(key);
+        return edits(key, 0, hashSet);
+    }
+
+    /**
+     * inexpensive and language independent: only deletes, no transposes + replaces + inserts replaces and inserts are expensive and language dependent (Chinese has 70,000 Unicode Han characters)
+     *
+     * @param word
+     * @param editDistance
+     * @param deleteWords
+     * @return
+     */
+    private Set<String> edits(String word, int editDistance, Set<String> deleteWords) {
+        editDistance++;
+        if (word.length() > 1) {
+            for (int i = 0; i < word.length(); i++) {
+                // String delete = word.Remove(i, 1);
+                String delete = word.substring(0, i) + word.substring(i + 1);
+                if (deleteWords.add(delete)) {
+                    // recursion, if maximum edit distance not yet reached
+                    if (editDistance < maxDictionaryEditDistance) {
+                        edits(delete, editDistance, deleteWords);
+                    }
+                }
+            }
+        }
+        return deleteWords;
+    }
+
+    /**
      * 
      * @param deleteHash
      * @param suggestion
@@ -139,10 +189,10 @@ public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
      * 
      * @param permanentDeletes
      */
-    void commitTo(TLongObjectMap<String[]> permanentDeletes) {
+    void commitTo(Long2ObjectOpenHashMap<String[]> permanentDeletes) {
         for (Map.Entry<Long, Entry> keyPair : deletes.entrySet()) {
             int i;
-            String[] suggestions = permanentDeletes.get(keyPair.getKey());
+            String[] suggestions = permanentDeletes.get(keyPair.getKey().longValue());
             if (suggestions != null) {
                 i = suggestions.length;
                 String[] newSuggestions = Arrays.copyOf(suggestions, suggestions.length + keyPair.getValue().count);
@@ -164,25 +214,62 @@ public class SuggestionStage implements ISymSpellIndex<SymSpellV6>{
     }
 
     @Override
-    public boolean createDictionaryEntry(String key) {
-        // TODO Auto-generated method stub
+    public boolean addWord(String key, long count) {
+        // edits/suggestions are created only once, no matter how often word occurs
+        // edits/suggestions are created only as soon as the word occurs in the corpus,
+        // even if the same term existed before in the dictionary as an edit from
+        // another word
+        if (key.length() > maxLength) {
+            maxLength = key.length();
+        }
+        // create deletes
+        Set<String> edits = editsPrefix(key);
+        // if not staging suggestions, put directly into main data structure
+        for (String delete : edits) {
+            add(getStringHash(delete), key);
+        }
         return false;
     }
 
     @Override
     public int getMaxLength() {
-        // TODO Auto-generated method stub
-        return 0;
+        return maxLength;
     }
 
     @Override
     public void commitTo(SymSpellV6 engine) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public int getEntryCount() {
         return nodes.getCount();
+    }
+
+    /**
+     *
+     * @param s
+     * @return
+     */
+    private long getStringHash(String s) {
+        int len = s.length();
+        int lenMask = len;
+        if (lenMask > 3) {
+            lenMask = 3;
+        }
+
+        long hash = 2166136261l;
+        for (int i = 0; i < len; i++) {
+            // unchecked
+            {
+                hash ^= s.charAt(i);
+                hash *= 16777619;
+            }
+        }
+
+        hash &= this.compactMask;
+        hash |= lenMask;
+        return hash;
     }
 }

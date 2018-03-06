@@ -319,7 +319,7 @@ public class Benchmark {
                     if (!x.add(cc)) {
                         // System.err.println("Duplicate:" + cc);
                     } else {
-                        dict.createDictionaryEntry(cc);
+                        dict.addWord(cc);
                     }
                 }
             }

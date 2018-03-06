@@ -11,7 +11,7 @@ public interface ISymSpellIndex<T extends ISymSpell> {
      * @param key
      * @return
      */
-    boolean createDictionaryEntry(String key);
+    boolean addWord(String key, long count);
 
     int getMaxLength();
     

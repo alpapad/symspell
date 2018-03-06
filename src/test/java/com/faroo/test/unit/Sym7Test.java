@@ -26,7 +26,7 @@ public class Sym7Test {
             System.err.println("Indexing for distance " + i);
             SymSpellV3 sp = new SymSpellV3(i, Verbosity.All, DistanceAlgo.OptimalStringAlignment);
             for (String w : data.loadCorpus()) {
-                sp.createDictionaryEntry(w.toLowerCase());
+                sp.addWord(w.toLowerCase());
             }
             sp.commit();
 

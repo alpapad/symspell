@@ -42,10 +42,12 @@ public class CustomCompactWordIndex implements IWordIndex, Externalizable {
 
     private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
+    private final Verbosity verbosity;
     public CustomCompactWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
         this.dictionary = new LongObjMap<Object>(100_000, .9f);
+        this.verbosity = verbosity;
     }
 
     private static final Object[] WORD = new Object[] { null };
@@ -59,7 +61,7 @@ public class CustomCompactWordIndex implements IWordIndex, Externalizable {
      * @return
      */
     @Override
-    public boolean createDictionaryEntry(String key) {
+    public boolean addWord(String key, long count) {
         key = key.intern();
         boolean result = false;
         final long kh = hash(key);
@@ -154,8 +156,8 @@ public class CustomCompactWordIndex implements IWordIndex, Externalizable {
     }
 
     @Override
-    public DictionaryItem getEntry(String candidate) {
-        return null;
+    public int getDistance() {
+        return restricetdEditDistanceMax;
     }
 
     @Override
@@ -305,5 +307,10 @@ public class CustomCompactWordIndex implements IWordIndex, Externalizable {
             }
         }
         assert size == dictionary.size();
+    }
+
+    @Override
+    public Verbosity getVerbosity() {
+        return verbosity;
     }
 }

@@ -12,10 +12,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.faroo.symspell.Verbosity;
-import com.faroo.symspell.distance.DistanceAlgo;
-import com.faroo.symspell.impl.v3.TroveCompactWordIndex;
-import com.faroo.symspell.impl.v3.SymSpellV3;
-
+import com.faroo.symspell.impl.v3.FastUtilCompactWordIndex;
 public class TestStore {
     static void gc() {
         System.err.println("Gc...");
@@ -33,16 +30,23 @@ public class TestStore {
         gc();
         gc();
         
-        TroveCompactWordIndex dict = new TroveCompactWordIndex(3,  Verbosity.All);
+        FastUtilCompactWordIndex dict = new FastUtilCompactWordIndex(2,  Verbosity.All);
         
         System.err.println("Index");
         long mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         
-        SymSpellV3 sp = new SymSpellV3(3, Verbosity.All, DistanceAlgo.OptimalStringAlignment, dict);
+        int i=0;
         for (String w : data.loadCorpus()) {
-            sp.createDictionaryEntry(w.toLowerCase());
+            i++;
+            dict.addWord(w.toLowerCase());
+            if(i%1000==0) {
+                System.err.print(".");
+            }
+            if(i%80000==0) {
+                System.err.println(".");
+            }
         }
-        sp.commit();
+        dict.commit();
         System.err.println("Done...");
         gc();
         gc();
@@ -55,13 +59,12 @@ public class TestStore {
         }
         System.err.println("Done saving");
         dict = null;
-        sp = null;
         
         gc();
         gc();
         System.err.println("Load");
         mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        TroveCompactWordIndex dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
+        FastUtilCompactWordIndex dict2 = new FastUtilCompactWordIndex(2,  Verbosity.All);
         
         try(ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream("/tmp/object.data"))))) {
             dict2.readExternal(is);
@@ -74,7 +77,7 @@ public class TestStore {
         System.err.println("Mem:" + mem2/1024/1024 + " --- " + mem3/1024/1024);
         mem = mem3;
         
-        dict2 = new TroveCompactWordIndex(2,  Verbosity.All);
+        dict2 = new FastUtilCompactWordIndex(2,  Verbosity.All);
         gc();
         gc();
         System.err.println("Load");

@@ -32,7 +32,7 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
      * 
      * A DictionaryItem is used for word, word/delete, and delete with multiple suggestions. integer is used for deletes with a single suggestion (the majority of entries).
      */
-    private final Long2ObjectOpenHashMap<Object> dictionary = new Long2ObjectOpenHashMap<>(100_000, 1f);
+    private Long2ObjectOpenHashMap<Object> dictionary = new Long2ObjectOpenHashMap<>(100_000, 1f);
 
     private int wordCount = 0;
 
@@ -42,9 +42,13 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
 
     private final ThreadLocal<CompactMatchesIterator> it = new ThreadLocal<>();
 
+    private final Verbosity verbosity;
+
+    
     public FastUtilCompactWordIndex(int editDistanceMax, Verbosity verbosity) {
         super();
         this.restricetdEditDistanceMax = editDistanceMax;
+        this.verbosity = verbosity;
     }
 
     private static final Object[] WORD = new Object[] { null };
@@ -58,7 +62,7 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
      * @return
      */
     @Override
-    public boolean createDictionaryEntry(String key) {
+    public boolean addWord(String key, long count) {
         key = key.intern();
         boolean result = false;
         final long kh = hash(key);
@@ -154,8 +158,8 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
     }
 
     @Override
-    public DictionaryItem getEntry(String candidate) {
-        return null;
+    public int getDistance() {
+        return restricetdEditDistanceMax;
     }
 
     @Override
@@ -170,7 +174,6 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
     @Override
     public void commit() {
         dictionary.trim();
-        // dictionary.compact();
     }
 
     @Override
@@ -183,6 +186,11 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
         return dictionary.size();
     }
 
+    @Override
+    public Verbosity getVerbosity() {
+        return verbosity;
+    }
+    
     private static boolean contains(Object value, Object[] array) {
         if (array == null || array.length == 0) {
             return false;
@@ -274,7 +282,8 @@ public class FastUtilCompactWordIndex implements IWordIndex, Externalizable {
         maxlength = in.readInt();
         final int size = in.readInt();
 
-        dictionary.clear();
+        dictionary = new Long2ObjectOpenHashMap<>(size, 1f);
+
         for (int i = 0; i < size; i++) {
             final long key = in.readLong();
             final int itemLen = in.readInt();

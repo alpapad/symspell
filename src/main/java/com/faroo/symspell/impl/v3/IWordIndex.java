@@ -1,41 +1,41 @@
 package com.faroo.symspell.impl.v3;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.faroo.symspell.ISymSpellIndex;
+import com.faroo.symspell.Verbosity;
 
 public interface IWordIndex extends ISymSpellIndex<SymSpellV3> {
 
     /**
-     * For every word there all deletes with an edit distance of 1..editDistanceMax created and added to the tempDictionary every delete entry has a suggestions list, which points to the original term(s) it was created from
-     *
-     * The tempDictionary may be dynamically updated (word frequency and new words) at any time by calling createDictionaryEntry
-     *
-     * @param key
+     * Add the word to the dictionary
+     * 
+     * @param word
      * @return
      */
-    boolean createDictionaryEntry(String key);
+    default boolean addWord(String word) {
+        return addWord(word, 1);
+    }
 
     int getMaxLength();
 
     IMatchingItemsIterator getIterable();
 
-    DictionaryItem getEntry(String candidate);
-
-    default IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item) {
-        DictionaryItem itm = getEntry(candidate);
-        if (itm != null) {
-            return new DictionaryItemIterator(itm);
-        }
-        return null;
-    }
+    IMatchingItemsIterator getMatches(String candidate, IMatchingItemsIterator item);
 
     void commit();
 
     int getWordCount();
 
     int getEntryCount();
+
+    int getDistance();
+    
+    Verbosity getVerbosity();
 
     /**
      * Inexpensive and language independent: only deletes, no transposes + replaces +inserts
@@ -91,4 +91,8 @@ public interface IWordIndex extends ISymSpellIndex<SymSpellV3> {
     default int dist(String in) {
         return dist(in.length(), 0.65);
     }
+    
+    
+    void readExternal(ObjectInput in) throws IOException, ClassNotFoundException;
+    void writeExternal(final ObjectOutput out) throws IOException;
 }

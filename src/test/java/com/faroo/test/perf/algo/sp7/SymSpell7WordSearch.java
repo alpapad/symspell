@@ -26,7 +26,7 @@ public class SymSpell7WordSearch implements WordSearch {
 
 	@Override
 	public boolean indexWord(String word) {
-		return symSpell.createDictionaryEntry(word.trim().toLowerCase());
+		return symSpell.addWord(word.trim().toLowerCase());
 	}
 
 	@Override

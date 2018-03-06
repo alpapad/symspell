@@ -33,8 +33,8 @@ import com.google.common.math.StatsAccumulator;
 public class SymSpellV3 implements ISymSpell {
     private static final int DEFAULT_EDIT_DISTANCE_MAX = 2;
     private static final Verbosity DEFAULT_VERBOSITY = Verbosity.All;
-    private static final DistanceAlgo DEFAULT_ALGO = DistanceAlgo.OptimalStringAlignment;
-
+    private static final DistanceAlgo DEFAULT_DISTANCE_ALGO = DistanceAlgo.OptimalStringAlignment;
+    private static final IndexAlgo DEFAULT_INDEX_ALGO = IndexAlgo.FastUtilCompact;
     /*
      * HashMapDictionary that contains both the original words and the deletes derived from them. A term might be both word and delete from another word at the same time.
      *
@@ -42,39 +42,54 @@ public class SymSpellV3 implements ISymSpell {
      *
      * A dictionaryItem is used for word, word/delete, and delete with multiple suggestions. Int is used for deletes with a single suggestion (the majority of entries).
      */
-    private IWordIndex dictionary;
+    private final IWordIndex dictionary;
+    
     private final IDistance algo;
-    public int editDistanceMax;
-    private Verbosity verbosity;
+    
+    public final int editDistanceMax;
+    
+    private final Verbosity verbosity;
 
     public final StatsAccumulator acc = new StatsAccumulator();
     public final StatsAccumulator du = new StatsAccumulator();
     private Stopwatch stopWatch = Stopwatch.createUnstarted();
 
     public SymSpellV3() {
-        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CustomCompactWordIndex(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY));
+        this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_DISTANCE_ALGO, DEFAULT_INDEX_ALGO);
     }
 
     public SymSpellV3(int editDistanceMax) {
-        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_ALGO, new CustomCompactWordIndex(editDistanceMax, DEFAULT_VERBOSITY));
+        this(editDistanceMax, DEFAULT_VERBOSITY, DEFAULT_DISTANCE_ALGO, DEFAULT_INDEX_ALGO);
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity) {
-        this(editDistanceMax, verbosity, DEFAULT_ALGO, new CustomCompactWordIndex(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, DEFAULT_DISTANCE_ALGO, DEFAULT_INDEX_ALGO);
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo) {
-        this(editDistanceMax, verbosity, algo, new CustomCompactWordIndex(editDistanceMax, verbosity));
+        this(editDistanceMax, verbosity, algo, DEFAULT_INDEX_ALGO);
+    }
+
+    public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IndexAlgo dictionary) {
+        this(editDistanceMax, verbosity, algo, dictionary.instance(editDistanceMax, verbosity));
+    }
+
+    public SymSpellV3(DistanceAlgo algo, IWordIndex dictionary) {
+        this(dictionary.getDistance(), dictionary.getVerbosity(), algo, dictionary);
+    }
+    
+    public SymSpellV3(DistanceAlgo algo, Verbosity verbosity, IWordIndex dictionary) {
+        this(dictionary.getDistance(), verbosity,algo,  dictionary);
     }
 
     public SymSpellV3(int editDistanceMax, Verbosity verbosity, DistanceAlgo algo, IWordIndex dictionary) {
         super();
         this.editDistanceMax = editDistanceMax;
         this.verbosity = verbosity;
-        this.dictionary = dictionary;
+        this.dictionary = dictionary;;
         this.algo = algo.instance();
     }
-
+    
     /*
      * (non-Javadoc)
      *
@@ -240,8 +255,8 @@ public class SymSpellV3 implements ISymSpell {
         }
     }
 
-    public boolean createDictionaryEntry(String lowerCase) {
-        return this.dictionary.createDictionaryEntry(lowerCase);
+    public boolean addWord(String lowerCase) {
+        return this.dictionary.addWord(lowerCase);
     }
 
     public void commit() {
