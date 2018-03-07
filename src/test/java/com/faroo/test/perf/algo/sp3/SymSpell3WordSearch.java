@@ -1,4 +1,4 @@
-package com.faroo.test.perf.algo.sp7;
+package com.faroo.test.perf.algo.sp3;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,13 +9,13 @@ import com.faroo.symspell.impl.v3.SymSpellV3;
 import com.faroo.test.perf.WordSearch;
 
 
-public class SymSpell7WordSearch implements WordSearch {
+public class SymSpell3WordSearch implements WordSearch {
 
 	boolean commited = false;
 	private final SymSpellV3 symSpell;
 	private final int distance;
 
-	public SymSpell7WordSearch(int distance) {
+	public SymSpell3WordSearch(int distance) {
 		this.distance = distance;
 		this.symSpell = new SymSpellV3(this.distance, Verbosity.All ,DistanceAlgo.OptimalStringAlignment);
 	}

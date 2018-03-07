@@ -48,11 +48,8 @@ public class Indexer {
         return index.getVerbosity();
     }
 
-
-    
-    public IWordIndex load(String file) {
-        
-        return index;
+    public IWordIndex load(String file) throws FileNotFoundException, ClassNotFoundException, IOException {
+        return load(index, file);
     }
 
     public long save(String file) throws FileNotFoundException, IOException {

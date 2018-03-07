@@ -12,8 +12,8 @@ public interface WordSearch {
 	boolean indexWord(String word);
 	
 	default void finishIndexing() {
-		
 	}
+
 	List<String> findSimilarWords(String searchQuery);
 
 	default List<String> findAllWords(String searchQuery) {

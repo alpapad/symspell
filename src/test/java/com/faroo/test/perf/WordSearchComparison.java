@@ -20,9 +20,9 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 //import org.apache.commons.lang3.time.StopWatch;
 
+import com.faroo.test.perf.algo.sp3.SymSpell3WordSearch;
 // import com.faroo.test.perf.algo.sp3orig.SymSpell3WordSearch;
 import com.faroo.test.perf.algo.sp6.SymSpell6WordSearch;
-import com.faroo.test.perf.algo.sp7.SymSpell7WordSearch;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.StatsAccumulator;
 
@@ -63,7 +63,7 @@ public class WordSearchComparison {
 	// 2 695 724
 	public static void main(String[] args) throws IOException, InterruptedException {
 		WordSearch[] wordCorrectImplementations = { //
-		        new SymSpell7WordSearch(2), //
+		        new SymSpell3WordSearch(2), //
 				// new BkWordSearch(2), //
 				//new SymSpell3WordSearch(2), //
 				//new SymSpell3WordSearch(2), //
@@ -72,20 +72,20 @@ public class WordSearchComparison {
 				
 				//new SymSpell6WordSearch(2), //
 				//new SymSpell6WordSearch(2), //
-				new SymSpell7WordSearch(2), //
+				new SymSpell3WordSearch(2), //
 				
 				new SymSpell6WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
-				new SymSpell7WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
+				new SymSpell3WordSearch(2), //
 				//new SymSpell7WordSearch(2), //
 				//new SymSpell7WordSearch(2), //
 				// new SymSpell6WordSearch(2),
