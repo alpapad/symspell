@@ -234,30 +234,6 @@ public class Benchmark {
                     System.out.println("lookup v6 " + INT(resultNumber) + " results " + FT(nanos / (double) query1k.size()) + "ns/op verbosity=" + verbosity + " query=mix");
                     System.out.println();
                     totalRepetitions += query1k.size();
-                    System.out.println("lookup v3 acc: " + " ---> " + INT(dict.acc.count())//
-                            + " sum:" + FT(dict.acc.sum()) //
-                            + "  mean:" + FT(dict.acc.mean())//
-                            + ", Stdev:" + FT(dict.acc.sampleStandardDeviation()) //
-                            + ", var:" + FT(dict.acc.sampleVariance()));
-
-                    System.out.println("lookup v3 dur: " + " ---> " + INT(dict.du.count())//
-                            + " sum:" + FT(dict.du.sum() / 1000) //
-                            + "  mean:" + FT(dict.du.mean())//
-                            + ", Stdev:" + FT(dict.du.sampleStandardDeviation()) //
-                            + ", var:" + FT(dict.du.sampleVariance()));
-
-                    System.out.println("lookup v6 acc: " + " ---> " + INT(dictOrig.acc.count())//
-                            + " sum:" + FT(dictOrig.acc.sum()) //
-                            + "  mean:" + FT(dictOrig.acc.mean())//
-                            + ", Stdev:" + FT(dictOrig.acc.sampleStandardDeviation()) //
-                            + ", var:" + FT(dictOrig.acc.sampleVariance()));
-
-                    System.out.println("lookup v3 dur: " + " ---> " + INT(dictOrig.du.count())//
-                            + " sum:" + FT(dictOrig.du.sum() / 1000) //
-                            + "  mean:" + FT(dictOrig.du.mean())//
-                            + ", Stdev:" + FT(dictOrig.du.sampleStandardDeviation()) //
-                            + ", var:" + FT(dictOrig.du.sampleVariance()));
-                    System.out.println();
                 }
                 System.out.println();
 

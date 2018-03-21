@@ -19,8 +19,6 @@ import com.faroo.symspell.Verbosity;
 import com.faroo.symspell.distance.DistanceAlgo;
 import com.faroo.symspell.distance.IDistance;
 import com.faroo.symspell.string.StringToCharArr;
-import com.google.common.base.Stopwatch;
-import com.google.common.math.StatsAccumulator;
 
 /**
  * SymSpellV3: 1 million times faster through Symmetric Delete spelling correction algorithm
@@ -49,10 +47,6 @@ public class SymSpellV3 implements ISymSpell {
     public final int editDistanceMax;
     
     private final Verbosity verbosity;
-
-    public final StatsAccumulator acc = new StatsAccumulator();
-    public final StatsAccumulator du = new StatsAccumulator();
-    private Stopwatch stopWatch = Stopwatch.createUnstarted();
 
     public SymSpellV3() {
         this(DEFAULT_EDIT_DISTANCE_MAX, DEFAULT_VERBOSITY, DEFAULT_DISTANCE_ALGO, DEFAULT_INDEX_ALGO);
@@ -203,10 +197,7 @@ public class SymSpellV3 implements ISymSpell {
                                 } else if (inputLen == candidateLen) {
                                     distance = suggestionLen - candidateLen;
                                 } else {
-                                    acc.add(1d);
-                                    stopWatch.reset().start();
                                     distance = algo.distance(suggestionStr, inputArr, editDistanceMax);
-                                    du.add(stopWatch.stop().elapsed().getNano());
                                 }
                             }
 

@@ -36,8 +36,6 @@ import java.util.regex.Pattern;
 import com.faroo.symspell.ISymSpell;
 import com.faroo.symspell.SuggestItem;
 import com.faroo.symspell.Verbosity;
-import com.google.common.base.Stopwatch;
-import com.google.common.math.StatsAccumulator;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TObjectLongHashMap;
@@ -55,7 +53,7 @@ public class SymSpellV6 implements ISymSpell {
     private int initialCapacity;
     private int maxDictionaryEditDistance;
     private int prefixLength; // prefix length 5..7
-    private long countThreshold; // a treshold might be specifid, when a term occurs so frequently in the corpus
+    private long countThreshold; // a threshold might be specified, when a term occurs so frequently in the corpus
                                  // that it is considered a valid word for spelling correction
     private long compactMask;
     private EditDistance.DistanceAlgorithm distanceAlgorithm = EditDistance.DistanceAlgorithm.Damerau;
@@ -104,10 +102,6 @@ public class SymSpellV6 implements ISymSpell {
         return this.words.size();
     }
 
-    public final StatsAccumulator acc = new StatsAccumulator();
-    public final StatsAccumulator du = new StatsAccumulator();
-    private Stopwatch stopWatch = Stopwatch.createUnstarted();
-
     /**
      * Number of word prefixes and intermediate word deletes encoded in the dictionary.
      */
@@ -125,9 +119,9 @@ public class SymSpellV6 implements ISymSpell {
     }
 
     /**
-     * Create a new instanc of SymSpellV3.
+     * Create a new instance of SymSpellV3.
      *
-     * Specifying ann accurate initialCapacity is not essential, but it can help speed up processing by aleviating the need for data restructuring as the size grows.
+     * Specifying an accurate initialCapacity is not essential, but it can help speed up processing by alleviating the need for data restructuring as the size grows.
      *
      *
      * @param initialCapacity
@@ -240,7 +234,7 @@ public class SymSpellV6 implements ISymSpell {
             }
         } else {
             if (deletes == null) {
-                this.deletes = new Long2ObjectOpenHashMap<>(initialCapacity,1f); // initialisierung
+                this.deletes = new Long2ObjectOpenHashMap<>(initialCapacity,1f); // initialization
             }
             for (String delete : edits) {
                 long deleteHash = getStringHash(delete);
@@ -376,7 +370,7 @@ public class SymSpellV6 implements ISymSpell {
      * @param input
      *            The word being spell checked.
      * @param verbose
-     *            The value controlling the quantity/closeness of the retuned suggestions.
+     *            The value controlling the quantity/closeness of the returned suggestions.
      * @return A List of SuggestItem object representing suggested correct spellings for the input word, sorted by edit distance, and secondarily by count frequency.
      */
     public List<SuggestItem> lookup(String input, Verbosity verbosity) {
@@ -394,7 +388,7 @@ public class SymSpellV6 implements ISymSpell {
      * @param input
      *            The word being spell checked.
      * @param verbose
-     *            The value controlling the quantity/closeness of the retuned suggestions.
+     *            The value controlling the quantity/closeness of the returned suggestions.
      * @param maxEditDistance
      *            The maximum edit distance between input and suggested words.
      * @return A List of SuggestItem object representing suggested correct spellings for the input word, sorted by edit distance, and secondarily by count frequency.
@@ -468,7 +462,7 @@ public class SymSpellV6 implements ISymSpell {
             /*
              * save some time - early termination
              *
-             * if canddate distance is already higher than suggestion distance, then there are no better suggestions to be expected
+             * if candidate distance is already higher than suggestion distance, then there are no better suggestions to be expected
              */
             if (lengthDiff > maxEditDistance2) {
                 /*
@@ -493,9 +487,9 @@ public class SymSpellV6 implements ISymSpell {
                         // System.err.println("suggestionStr.equals(inputStr)");
                         continue;
                     }
-                    if ((Math.abs(suggestionLen - inputLen) > maxEditDistance2) // input and sugg lengths diff >
+                    if ((Math.abs(suggestionLen - inputLen) > maxEditDistance2) // input and suggestion lengths difference >
                                                                                 // allowed/current best distance
-                            || (suggestionLen < candidateLen) // sugg must be for a different delete string, in same bin // only because of hash collision
+                            || (suggestionLen < candidateLen) // suggestion must be for a different delete string, in same bin // only because of hash collision
                             || ((suggestionLen == candidateLen) && (!suggestion.equals(candidate)))) {
                         // System.err.println("bla1 .equals(inputStr)");
                         continue;
@@ -540,7 +534,7 @@ public class SymSpellV6 implements ISymSpell {
                         }
                     } else
                     /*
-                     * number of edits in prefix ==maxediddistance AND no identic suffix , then editdistance>maxEditDistance and no need for Levenshtein calculation (inputLen >= prefixLength) && (suggestionLen >= prefixLength)
+                     * number of edits in prefix ==maxEditDistance AND no identical suffix , then editDistance>maxEditDistance and no need for Levenshtein calculation (inputLen >= prefixLength) && (suggestionLen >= prefixLength)
                      */
                     if (//
                     (//
@@ -563,10 +557,7 @@ public class SymSpellV6 implements ISymSpell {
                         if (((!Verbosity.All.equals(verbosity)) && !deleteInSuggestionPrefix(candidate, candidateLen, suggestion, suggestionLen)) || !consideredSuggestions.add(suggestion)) {
                             continue;
                         }
-                        stopWatch.reset().start();
                         distance = distanceComparer.Compare(suggestion, maxEditDistance2);
-                        du.add(stopWatch.stop().elapsed().getNano());
-                        acc.add(1d);
                         if (distance < 0) {
                             continue;
                         }
@@ -602,7 +593,7 @@ public class SymSpellV6 implements ISymSpell {
                         }
                         suggestions.add(si);
                     }
-                } // end foreach
+                } // end forEach
             } // end if
 
             // add edits
@@ -692,9 +683,9 @@ public class SymSpellV6 implements ISymSpell {
      */
     public static Iterable<String> parseWords(String text) {
         /*
-         * \w Alphanumeric characters (including non-latin characters, umlaut characters and digits) plus "_" \d Digits
+         * \w Alphanumeric characters (including non-Latin characters, umlaut characters and digits) plus "_" \d Digits
          *
-         * Provides identical results to Norvigs regex "[a-z]+" for latin characters, while additionally providing compatibility with non-latin characters
+         * Provides identical results to Norvig's Regex "[a-z]+" for Latin characters, while additionally providing compatibility with non-Latin characters
          */
         List<String> allMatches = new ArrayList<>();
         Matcher m = sp.matcher(text.toLowerCase());
