@@ -5,7 +5,6 @@ import com.faroo.symspell.Verbosity;
 public enum IndexAlgo {
     CustomCompact,
     FastUtilCompact,
-    FastIntUtilCompact,
     KolobokeCompact,
     TroveCompact,
     HashMap,
@@ -25,8 +24,6 @@ public enum IndexAlgo {
             return new HashMapWordIndex(editDistanceMax, verbosity);
         case HashedWord:
             return new HashedWordIndex(editDistanceMax, verbosity);
-        case FastIntUtilCompact:
-            return new FastIntUtilCompactWordIndex(editDistanceMax, verbosity);
         }
         return null;
     }
